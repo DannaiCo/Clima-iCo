@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <title>Pantallas Quividi</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,800;1,800&display=swap"
+            rel="stylesheet" />
+
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                padding: 40px;
+                min-height: 100vh;
+                background: #012aff;
+                color: #ffffff;
+                font-family: "Open Sans", sans-serif;
+            }
+
+            main {
+                width: min(100%, 900px);
+                margin: 0 auto;
+            }
+
+            h1 {
+                margin: 0 0 10px;
+                font-size: 45px;
+            }
+
+            p {
+                margin: 0 0 32px;
+                color: #ffffff;
+                font-size: 22px;
+            }
+
+            .screens {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 16px;
+            }
+
+            .screen {
+                display: block;
+                padding: 22px;
+                border: 1px solid #293142;
+                border-radius: 14px;
+                background: #002356;
+                color: #ffffff;
+                text-align: center;
+                text-decoration: none;
+                transition:
+                    transform 150ms ease,
+                    border-color 150ms ease;
+            }
+
+            .screen:hover {
+                transform: translateY(-10px);
+                border-color: #dae505;
+                border-width: 5px;
+                
+            }
+
+            .screen strong {
+                display: block;
+                margin-bottom: 8px;
+                color: #efefef;
+                font-size: 25px;
+            }
+
+            .screen span {
+                color: #efefef;
+                font-size: 16px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <main>
+            <h1>Hora y Clima iCo Medios</h1>
+
+            <p>Selecciona una pantalla para abrir su contenido.</p>
+
+            <div class="screens">
+                <a class="screen" href="./c93/">
+                    <strong>Centro 93</strong>
+                    <span>3840 × 542</span>
+                </a>
+
+                <a class="screen" href="./peaje/">
+                    <strong>Peaje</strong>
+                    <span>4146 × 1556</span>
+                </a>
+
+                <a class="screen" href="./totem/">
+                    <strong>Totem</strong>
+                    <span>600 × 1440</span>
+                </a>
+
+                <a class="screen" href="./nb/">
+                    <strong>Nuestro Bogota</strong>
+                    <span>3840 × 2160</span>
+                </a>
+
+                <a class="screen" href="./tm-641/">
+                    <strong>TM 641</strong>
+                    <span>641 × 192</span>
+                </a>
+
+                <a class="screen" href="./tm-769/">
+                    <strong>TM 769</strong>
+                    <span>769 × 192</span>
+                </a>
+
+                <a class="screen" href="./tm-897/">
+                    <strong>TM 897</strong>
+                    <span>897 × 192</span>
+                </a>
+
+                <a class="screen" href="./valla-106/">
+                    <strong>Valla 106</strong>
+                    <span>1440 × 480</span>
+                </a>
+
+                <a class="screen" href="./vallaavboyaca/">
+                    <strong>Valla Av Boyaca</strong>
+                    <span>960 × 720</span>
+                </a>
+                
+            </div>
+        </main>
+    </body>
+</html>
