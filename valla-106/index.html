@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hora, Fecha y Clima</title>
+    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
+    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
+    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
+
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 1440px;
+        height: 480px;
+        background: #000;
+        font-family: Arial, sans-serif;
+      }
+
+      #backgroundContainer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 1440px;
+        height: 480px;
+        z-index: -1;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .weather-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 1440px;
+        height: 480px;
+
+        object-fit: cover;
+
+        opacity: 0;
+
+        /*
+    Transición muy corta para evitar
+    cualquier frame intermedio.
+  */
+        transition: opacity 0.15s linear;
+
+        pointer-events: none;
+      }
+
+      .weather-background.active {
+        opacity: 1;
+      }
+
+      .container {
+        position: relative;
+        display: grid;
+        width: 1440px;
+        height: 480px;
+      }
+
+      .grid-item {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        box-sizing: border-box;
+        overflow: hidden;
+        white-space: nowrap;
+        text-align: center;
+        line-height: 1;
+        font-size: var(--font-max);
+      }
+
+      /* HORA */
+      .time {
+        left: 49px;
+        top: 66px;
+        width: 412px;
+        height: 229px;
+        --font-max: 300px;
+        --font-min: 30px;
+        font-family: "alphabet-soup-pro", sans-serif;
+        font-weight: 400;
+        letter-spacing: 5px;
+        font-style: normal;
+        color: #df394d;
+      }
+
+      /* DÍA DE LA SEMANA */
+      .day {
+        left: 49px;
+        top: 253px;
+        width: 412px;
+        height: 78px;
+        --font-max: 130px;
+        --font-min: 30px;
+        font-family: "alphabet-soup-pro", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        color: #df394d;
+      }
+
+      /* FECHA */
+      .date {
+        left: 80px;
+        top: 329px;
+        width: 344px;
+        height: 67px;
+        --font-max: 51px;
+        --font-min: 16px;
+        font-family: "alphabet-soup-pro", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        letter-spacing: 1.2px;
+        color: #fce0dd;
+      }
+
+      .date-pill {
+        display: block;
+        width: max-content;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 6px 20px;
+        border-radius: 9999px;
+        background-color: #f1688a;
+      }
+
+      /* TEMPERATURA */
+      .weather {
+        left: 530px;
+        top: 138px;
+        width: 280px;
+        height: 184px;
+        --font-max: 272px;
+        --font-min: 100px;
+        font-family: "alphabet-soup-pro", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        letter-spacing: 1px;
+        color: #f1688a;
+      }
+
+      /* DESCRIPCIÓN */
+      .weather-description {
+        left: 530px;
+        top: 312px;
+        width: 280px;
+        height: 84px;
+        --font-max: 90px;
+        --font-min: 35px;
+        font-family: "pacifico", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        color: #df394d;
+        white-space: pre-line;
+        line-height: 0.84;
+        text-align: center;
+      }
+
+      /* CIUDAD */
+      .city {
+        left: 530px;
+        top: 86px;
+        width: 280px;
+        height: 45px;
+        --font-max: 55px;
+        --font-min: 12px;
+        font-family: "nitti-grotesk-condensed", sans-serif;
+        font-weight: 300;
+        font-style: normal;
+        color: #df394d;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- FONDO DINÁMICO -->
+      <div id="backgroundContainer">
+        <video
+          id="fondoA"
+          class="weather-background active"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+          src="fondos/Despejado_Dia.mp4"></video>
+
+        <video id="fondoB" class="weather-background" muted loop playsinline preload="auto"></video>
+      </div>
+
+      <div id="clock" class="time grid-item" data-fit-text></div>
+      <div id="weekday" class="day grid-item" data-fit-text></div>
+      <div id="date" class="date grid-item" data-fit-text>
+        <span id="dateText" class="date-pill"></span>
+      </div>
+      <div id="city" class="city grid-item" data-fit-text>Bogotá</div>
+      <div id="weather" class="weather grid-item" data-fit-text></div>
+      <div id="weatherText" class="weather-description grid-item" data-fit-text></div>
+    </div>
+
+    <script>
+      /* =========================================================
+         CONFIGURACIÓN
+      ========================================================= */
+
+      /*
+        Si tus fondos son MP4 no debes cambiar nada.
+
+        Si posteriormente fueran WEBM:
+        const BACKGROUND_EXTENSION = "webm";
+      */
+
+      const BACKGROUND_EXTENSION = "mp4";
+
+      /* =========================================================
+         ZONAS DE BOGOTÁ
+      ========================================================= */
+
+      const WEATHER_ZONES = {
+        // Valla Calle 106 - 9
+
+        Valla106: {
+          name: "Valla106",
+          lat: 4.688387,
+          lon: -74.041831
+        },
+
+        // Zona utilizada como respaldo
+
+        centro: {
+          name: "Centro",
+          // lat: 4.647669,
+          //  lon: -74.105506
+          lat: 4.688387,
+          lon: -74.041831
+        }
+      };
+
+      /* =========================================================
+         SELECCIÓN DE ZONA DESDE URL
+      ========================================================= */
+
+      /*
+        Ejemplos:
+
+        index.html?zona=troncalnorte
+        index.html?zona=troncal80
+        index.html?zona=troncalnqs
+        index.html?zona=troncalautosur
+        index.html?zona=troncalcaracas
+        index.html?zona=troncalsuba
+
+        Si no existe el parámetro, utiliza "centro".
+      */
+
+      const params = new URLSearchParams(window.location.search);
+
+      const requestedZone = (params.get("zona") || "centro").toLowerCase();
+
+      const currentZone = WEATHER_ZONES[requestedZone] || WEATHER_ZONES.centro;
+
+      console.log("Zona de clima:", currentZone.name);
+      console.log("Latitud:", currentZone.lat);
+      console.log("Longitud:", currentZone.lon);
+
+      /* =========================================================
+         ESTADO CLIMÁTICO ACTUAL
+      ========================================================= */
+
+      /*
+        Guardamos aquí la última condición obtenida.
+
+        Esto permite cambiar de Día → Noche a las 18:00
+        sin tener que volver a consultar inmediatamente la API.
+      */
+
+      let currentWeatherCondition = "Despejado";
+      let activeBackground = "A";
+
+      let currentBackgroundSrc = "fondos/Despejado_Dia.mp4";
+
+      let backgroundChanging = false;
+
+      /* =========================================================
+         HORA DE BOGOTÁ
+      ========================================================= */
+
+      function getBogotaHour() {
+        /*
+          Utilizamos explícitamente America/Bogota.
+
+          Así, aunque el reproductor DOOH tenga otra zona
+          horaria configurada, Día / Noche seguirá funcionando
+          con la hora real de Bogotá.
+        */
+
+        const hourString = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/Bogota",
+          hour: "2-digit",
+          hourCycle: "h23"
+        }).format(new Date());
+
+        return parseInt(hourString, 10);
+      }
+
+      /* =========================================================
+         DÍA / NOCHE
+      ========================================================= */
+
+      function isNightTime() {
+        const hour = getBogotaHour();
+
+        /*
+          NOCHE:
+          18:00 → 05:59
+
+          DÍA:
+          06:00 → 17:59
+        */
+
+        return hour >= 18 || hour < 6;
+      }
+
+      /* =========================================================
+         AJUSTE AUTOMÁTICO DEL TEXTO A SU CELDA
+      ========================================================= */
+
+      const GRID_TEXT_SELECTOR = "[data-fit-text]";
+
+      function textFitsGridCell(element) {
+        const content = element.firstElementChild || element;
+
+        return content.scrollWidth <= element.clientWidth + 1 && content.scrollHeight <= element.clientHeight + 1;
+      }
+
+      function fitTextToGridCell(element) {
+        const styles = getComputedStyle(element);
+        const maximumSize = parseFloat(styles.getPropertyValue("--font-max"));
+        const minimumSize = parseFloat(styles.getPropertyValue("--font-min")) || 8;
+
+        if (!maximumSize || element.clientWidth === 0 || element.clientHeight === 0) {
+          return;
+        }
+
+        element.style.fontSize = `${maximumSize}px`;
+
+        if (textFitsGridCell(element)) {
+          return;
+        }
+
+        let lowerSize = minimumSize;
+        let upperSize = maximumSize;
+
+        for (let attempt = 0; attempt < 12; attempt += 1) {
+          const testSize = (lowerSize + upperSize) / 2;
+
+          element.style.fontSize = `${testSize}px`;
+
+          if (textFitsGridCell(element)) {
+            lowerSize = testSize;
+          } else {
+            upperSize = testSize;
+          }
+        }
+
+        element.style.fontSize = `${Math.floor(lowerSize * 10) / 10}px`;
+      }
+
+      function fitAllGridText() {
+        document.querySelectorAll(GRID_TEXT_SELECTOR).forEach(fitTextToGridCell);
+      }
+
+      /* =========================================================
+         RELOJ, DÍA Y FECHA
+      ========================================================= */
+
+      function updateClock() {
+        const now = new Date();
+
+        const hours = String(now.getHours()).padStart(2, "0");
+
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+
+        document.getElementById("clock").textContent = `${hours}:${minutes}`;
+
+        const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+        const months = [
+          "Enero",
+          "Febrero",
+          "Marzo",
+          "Abril",
+          "Mayo",
+          "Junio",
+          "Julio",
+          "Septiembre",
+          "Septiembre",
+          "Octubre",
+          "Noviembre",
+          "Diciembre"
+        ];
+
+        const dayName = days[now.getDay()];
+
+        const day = now.getDate();
+
+        const month = months[now.getMonth()];
+
+        document.getElementById("weekday").textContent = dayName;
+
+        document.getElementById("dateText").textContent = `${day} de ${month}`;
+
+        requestAnimationFrame(fitAllGridText);
+      }
+
+      /* =========================================================
+         DETERMINAR TIPO DE CLIMA
+      ========================================================= */
+
+      function getWeatherCondition(weatherId, description) {
+        const desc = description.toLowerCase();
+
+        /* ---------------------------------------------------------
+           VIENTO
+
+           Ya NO tiene condición propia.
+
+           Si por algún motivo OpenWeather devuelve una descripción
+           relacionada con viento, se mostrará DESPEJADO.
+        --------------------------------------------------------- */
+
+        if (desc.includes("viento")) {
+          return "Despejado";
+        }
+
+        /* ---------------------------------------------------------
+           TORMENTA
+           OpenWeather IDs: 200 - 299
+        --------------------------------------------------------- */
+
+        if (weatherId >= 200 && weatherId < 300) {
+          return "Tormenta";
+        }
+
+        /* ---------------------------------------------------------
+           LLOVIZNA
+           OpenWeather IDs: 300 - 399
+        --------------------------------------------------------- */
+
+        if (weatherId >= 300 && weatherId < 400) {
+          return "Lluvia_Suave";
+        }
+
+        /* ---------------------------------------------------------
+           LLUVIA
+           OpenWeather IDs: 500 - 599
+        --------------------------------------------------------- */
+
+        if (weatherId >= 500 && weatherId < 600) {
+          /*
+            Condiciones consideradas lluvia fuerte.
+          */
+
+          const strongRainIds = [502, 503, 504, 511, 522, 531];
+
+          if (
+            strongRainIds.includes(weatherId) ||
+            desc.includes("fuerte") ||
+            desc.includes("intensa") ||
+            desc.includes("gran intensidad") ||
+            desc.includes("extrema")
+          ) {
+            return "Lluvia_Fuerte";
+          }
+
+          return "Lluvia_Suave";
+        }
+
+        /* ---------------------------------------------------------
+           DESPEJADO
+           OpenWeather ID: 800
+        --------------------------------------------------------- */
+
+        if (weatherId === 800) {
+          return "Despejado";
+        }
+
+        /* ---------------------------------------------------------
+           PARCIALMENTE NUBLADO
+           OpenWeather IDs: 801 - 802
+
+           801 = algunas nubes
+           802 = nubes dispersas
+        --------------------------------------------------------- */
+
+        if (weatherId === 801 || weatherId === 802 || weatherId === 803) {
+          return "Parcialmente_Nublado";
+        }
+
+        /* ---------------------------------------------------------
+           NUBLADO
+           OpenWeather IDs: 803 - 804
+        --------------------------------------------------------- */
+
+        if (weatherId === 804) {
+          return "Nublado";
+        }
+        /* ---------------------------------------------------------
+           RESPALDO
+
+           Si llega una condición que no tenemos contemplada
+           gráficamente, utilizamos Despejado.
+        --------------------------------------------------------- */
+
+        return "Despejado";
+      }
+
+      /* =========================================================
+         FONDO SEGÚN CLIMA + DÍA / NOCHE
+      ========================================================= */
+
+      function getWeatherBackground(condition) {
+        const period = isNightTime() ? "Noche" : "Dia";
+
+        return `fondos/${condition}_${period}.` + BACKGROUND_EXTENSION;
+      }
+
+      /* =========================================================
+         ACTUALIZAR FONDO
+      ========================================================= */
+      function waitForVideo(video) {
+        return new Promise((resolve, reject) => {
+          /*
+        readyState >= 2 significa
+        HAVE_CURRENT_DATA.
+
+        Es decir:
+        ya tenemos un frame disponible.
+      */
+
+          if (video.readyState >= 2) {
+            resolve();
+
+            return;
+          }
+
+          const handleLoaded = () => {
+            cleanup();
+
+            resolve();
+          };
+
+          const handleError = () => {
+            cleanup();
+
+            reject(new Error("No se pudo cargar el video: " + video.src));
+          };
+
+          const cleanup = () => {
+            video.removeEventListener("loadeddata", handleLoaded);
+
+            video.removeEventListener("error", handleError);
+          };
+
+          video.addEventListener("loadeddata", handleLoaded, { once: true });
+
+          video.addEventListener("error", handleError, { once: true });
+        });
+      }
+
+      async function updateWeatherBackground() {
+        const newSrc = getWeatherBackground(currentWeatherCondition);
+
+        /*
+    Si ya tenemos ese mismo fondo,
+    no hacemos absolutamente nada.
+  */
+
+        if (newSrc === currentBackgroundSrc) {
+          return;
+        }
+
+        /*
+    Evitamos cambios simultáneos.
+  */
+
+        if (backgroundChanging) {
+          return;
+        }
+
+        backgroundChanging = true;
+
+        /*
+    Determinamos cuál video está visible
+    y cuál utilizaremos para precargar.
+  */
+
+        const activeVideo =
+          activeBackground === "A" ? document.getElementById("fondoA") : document.getElementById("fondoB");
+
+        const preloadVideo =
+          activeBackground === "A" ? document.getElementById("fondoB") : document.getElementById("fondoA");
+
+        try {
+          console.log("Precargando nuevo fondo:", newSrc);
+
+          /*
+      Primero dejamos totalmente oculto
+      el video que servirá como buffer.
+    */
+
+          preloadVideo.classList.remove("active");
+
+          /*
+      Asignamos el nuevo archivo.
+    */
+
+          preloadVideo.src = newSrc;
+
+          /*
+      Pedimos al navegador que comience
+      a cargarlo.
+    */
+
+          preloadVideo.load();
+
+          /*
+      ESPERAMOS hasta que el navegador
+      tenga un frame disponible.
+
+      loadeddata significa que ya puede
+      pintar el primer frame.
+    */
+
+          await waitForVideo(preloadVideo);
+
+          /*
+      Lo llevamos al inicio.
+    */
+
+          preloadVideo.currentTime = 0;
+
+          /*
+      Comenzamos a reproducirlo ANTES
+      de hacerlo visible.
+    */
+
+          await preloadVideo.play();
+
+          /*
+      Esperamos un frame del navegador.
+
+      Así evitamos mostrar el elemento
+      antes de que realmente haya pintado
+      el video.
+    */
+
+          await new Promise((resolve) => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(resolve);
+            });
+          });
+
+          /*
+      AHORA sí hacemos visible
+      el nuevo fondo.
+    */
+
+          preloadVideo.classList.add("active");
+
+          /*
+      Quitamos el anterior.
+
+      Como el nuevo ya está reproduciéndose,
+      nunca aparece el fondo vacío.
+    */
+
+          activeVideo.classList.remove("active");
+
+          /*
+      Actualizamos variables.
+    */
+
+          activeBackground = activeBackground === "A" ? "B" : "A";
+
+          currentBackgroundSrc = newSrc;
+
+          /*
+      Esperamos a que termine
+      la pequeña transición.
+    */
+
+          setTimeout(() => {
+            activeVideo.pause();
+
+            /*
+        Opcionalmente lo dejamos vacío
+        para liberar memoria.
+      */
+
+            activeVideo.removeAttribute("src");
+
+            activeVideo.load();
+          }, 300);
+
+          console.log("Fondo cambiado correctamente:", newSrc);
+        } catch (error) {
+          console.error("Error cambiando fondo:", error);
+        } finally {
+          backgroundChanging = false;
+        }
+      }
+      /* =========================================================
+         ACTUALIZAR VISUALES
+      ========================================================= */
+
+      function updateWeatherVisuals() {
+        /*
+          El fondo representa la condición meteorológica actual
+          y cambia también según la hora de Bogotá.
+        */
+
+        updateWeatherBackground();
+      }
+
+      /* =========================================================
+         CLIMA API
+      ========================================================= */
+
+      async function fetchWeather() {
+        const apiKey = "65fd2c24a1679d15f7b59502783522f7";
+
+        const lat = currentZone.lat;
+
+        const lon = currentZone.lon;
+
+        const url =
+          `https://api.openweathermap.org/data/2.5/weather` +
+          `?lat=${lat}` +
+          `&lon=${lon}` +
+          `&appid=${apiKey}` +
+          `&units=metric` +
+          `&lang=es`;
+
+        try {
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            throw new Error(`Error OpenWeather: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.weather && data.weather.length > 0 && data.main) {
+            /* TEMPERATURA */
+
+            const temperature = Math.round(data.main.temp);
+
+            /* DATOS OPENWEATHER */
+
+            const weatherId = data.weather[0].id;
+
+            const description = data.weather[0].description;
+
+            /*
+              Convertimos la condición de OpenWeather
+              a una de nuestras 6 categorías gráficas.
+            */
+
+            currentWeatherCondition = getWeatherCondition(weatherId, description);
+
+            /* TEMPERATURA */
+
+            document.getElementById("weather").textContent = `${temperature}°C`;
+
+            /* DESCRIPCIÓN */
+
+            const WEATHER_LABELS = {
+              Tormenta: "Tormenta",
+              Lluvia_Fuerte: "Lluvia",
+              Lluvia_Suave: "Llovizna",
+              Nublado: "Nublado",
+              Parcialmente_Nublado: "Parcialmente\nnublado",
+              Despejado: "Soleado"
+            };
+
+            document.getElementById("weatherText").textContent = WEATHER_LABELS[currentWeatherCondition] || "Soleado";
+
+            /* CIUDAD */
+
+            document.getElementById("city").textContent = "Bogotá";
+
+            /* FONDO */
+
+            updateWeatherVisuals();
+
+            requestAnimationFrame(fitAllGridText);
+
+            console.log(`Clima actualizado - Bogotá ${currentZone.name}`, {
+              temperatura: temperature,
+              descripcion: description,
+              weatherId: weatherId,
+              condicionVisual: currentWeatherCondition,
+              periodo: isNightTime() ? "Noche" : "Día",
+              latitud: lat,
+              longitud: lon
+            });
+          }
+        } catch (error) {
+          console.error("Error obteniendo el clima:", error);
+
+          document.getElementById("weather").textContent = "--";
+
+          document.getElementById("weatherText").textContent = "";
+
+          requestAnimationFrame(fitAllGridText);
+        }
+      }
+
+      /* =========================================================
+         REVISAR CAMBIO DÍA / NOCHE
+      ========================================================= */
+
+      function checkDayNightChange() {
+        /*
+          Se ejecuta cada minuto.
+
+          Si llega exactamente la transición:
+
+          17:59 → 18:00
+          o
+          05:59 → 06:00
+
+          se actualiza el fondo aunque todavía
+          no hayan pasado los 10 minutos de la API.
+        */
+
+        updateWeatherVisuals();
+      }
+
+      /* =========================================================
+         INICIALIZACIÓN
+      ========================================================= */
+
+      updateClock();
+
+      fitAllGridText();
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(fitAllGridText);
+      }
+
+      window.addEventListener("resize", fitAllGridText);
+
+      if ("ResizeObserver" in window) {
+        const gridResizeObserver = new ResizeObserver(fitAllGridText);
+
+        gridResizeObserver.observe(document.querySelector(".container"));
+      }
+
+      setInterval(updateClock, 1000);
+
+      /*
+        Primera carga meteorológica.
+      */
+
+      fetchWeather();
+
+      /*
+        Actualización API cada 10 minutos.
+      */
+
+      setInterval(fetchWeather, 10 * 60 * 1000);
+
+      /*
+        Comprobación Día / Noche cada minuto.
+      */
+
+      setInterval(checkDayNightChange, 60 * 1000);
+    </script>
+  </body>
+</html>
