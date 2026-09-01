@@ -111,31 +111,31 @@
         color: #df394d;
       }
 
-      /* FECHA */
+        /* FECHA */
       .date {
+        position: absolute;
         left: 949px;
         top: 1121px;
         width: 460px;
         height: 124px;
-        --font-max: 250px;
-        --font-min: 41px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        letter-spacing: 1.2px;
-        color: #fce0dd;
-      }
 
-      .date-pill {
-        display: block;
-        width: max-content;
-        max-width: 100%;
-        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
         padding: 19px 29px;
         border-radius: 9999px;
         background-color: #f1688a;
-      }
 
+        font-family: "alphabet-soup-pro", Arial, sans-serif;
+        font-size: 100px;
+        font-weight: 400;
+        letter-spacing: 1.2px;
+        line-height: 1;
+        white-space: nowrap;
+        color: #fce0dd;
+        z-index: 2;
+      }
       /* TEMPERATURA */
       .weather {
         left: 2346px;
@@ -203,9 +203,7 @@
 
       <div id="clock" class="time grid-item" data-fit-text></div>
       <div id="weekday" class="day grid-item" data-fit-text></div>
-      <div id="date" class="date grid-item" data-fit-text>
-        <span id="dateText" class="date-pill"></span>
-      </div>
+     <div id="date" class="date"></div>
       <div id="city" class="city grid-item" data-fit-text>Bogotá</div>
       <div id="weather" class="weather grid-item" data-fit-text></div>
       <div id="weatherText" class="weather-description grid-item" data-fit-text></div>
@@ -443,7 +441,7 @@
 
         document.getElementById("weekday").textContent = dayName;
 
-        document.getElementById("dateText").textContent = `${day} de ${month}`;
+        document.getElementById("date").textContent = `${day} de ${month}`;
 
         requestAnimationFrame(fitAllGridText);
       }
