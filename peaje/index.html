@@ -5,28 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hora, Fecha y Clima</title>
     <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
-    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
-    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
 
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
       body {
+        width: 100%;
+        height: 100%;
         margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 4147px;
-        height: 1556px;
+        overflow: hidden;
         background: #000;
+      }
+
+      body {
         font-family: Arial, sans-serif;
       }
 
       #backgroundContainer {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 4147px;
         height: 1556px;
-        z-index: -1;
+        z-index: 0;
         overflow: hidden;
         background: #000;
       }
@@ -61,6 +65,8 @@
         display: grid;
         width: 4147px;
         height: 1556px;
+        overflow: hidden;
+        transform-origin: top left;
       }
 
       .grid-item {
@@ -73,6 +79,7 @@
         text-align: center;
         line-height: 1;
         font-size: var(--font-max);
+        z-index: 1;
       }
 
       /* HORA */
@@ -219,13 +226,35 @@
       const BACKGROUND_EXTENSION = "mp4";
 
       /* =========================================================
+         ESCALADO DEL LIENZO A LA PANTALLA
+      ========================================================= */
+
+      const DESIGN_WIDTH = 4147;
+      const DESIGN_HEIGHT = 1556;
+
+      function scaleStageToScreen() {
+        const container = document.querySelector(".container");
+
+        const scaleX = window.innerWidth / DESIGN_WIDTH;
+        const scaleY = window.innerHeight / DESIGN_HEIGHT;
+
+        /*
+          Usamos la escala menor para que el lienzo siempre se vea
+          completo, sin recortes ni deformaciones.
+        */
+        const scale = Math.min(scaleX, scaleY);
+
+        container.style.transform = `scale(${scale})`;
+      }
+
+      /* =========================================================
          ZONAS DE BOGOTÁ
       ========================================================= */
 
       const WEATHER_ZONES = {
         // Peaje
 
-        Peaje: {
+        peaje: {
           name: "Peaje",
           lat: 4.707654,
           lon: -74.053761
@@ -237,8 +266,8 @@
           name: "Centro",
           // lat: 4.647669,
           //  lon: -74.105506
-          lat: 4.6904,
-          lon: -74.050936
+          lat: 4.707654,
+          lon: -74.053761
         }
       };
 
@@ -399,7 +428,7 @@
           "Mayo",
           "Junio",
           "Julio",
-          "Ago",
+          "Agosto",
           "Sep",
           "Octubre",
           "Noviembre",
@@ -849,6 +878,8 @@
          INICIALIZACIÓN
       ========================================================= */
 
+      scaleStageToScreen();
+
       updateClock();
 
       fitAllGridText();
@@ -857,7 +888,10 @@
         document.fonts.ready.then(fitAllGridText);
       }
 
-      window.addEventListener("resize", fitAllGridText);
+      window.addEventListener("resize", () => {
+        scaleStageToScreen();
+        fitAllGridText();
+      });
 
       if ("ResizeObserver" in window) {
         const gridResizeObserver = new ResizeObserver(fitAllGridText);
