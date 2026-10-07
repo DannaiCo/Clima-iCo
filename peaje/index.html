@@ -94,7 +94,7 @@
         font-weight: 400;
         letter-spacing: 5px;
         font-style: normal;
-        color: #df394d;
+        color: #ecc6f6;
       }
 
       /* DÍA DE LA SEMANA */
@@ -103,32 +103,34 @@
         top: 1110px;
         width: 444px;
         height: 150px;
-        --font-max: 300px;
-        --font-min: 100px;
+        --font-max: 95px;
+        --font-min: 60px;
         font-family: "alphabet-soup-pro", sans-serif;
         font-weight: 400;
         font-style: normal;
-        color: #df394d;
+        color: #ecc6f6;
       }
 
-        /* FECHA */
+      /* FECHA */
       .date {
         position: absolute;
-        left: 949px;
+        left: 956px;
         top: 1121px;
-        width: 460px;
+        width: 426px;
         height: 124px;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
-        padding: 19px 29px;
+        padding: 10px 29px;
         border-radius: 9999px;
-        background-color: #f1688a;
+        background-color: #520e75;
+        border-style: solid;
+        border-color: #ecc6f6;
 
         font-family: "alphabet-soup-pro", Arial, sans-serif;
-        font-size: 100px;
+        font-size: 95px;
         font-weight: 400;
         letter-spacing: 1.2px;
         line-height: 1;
@@ -136,6 +138,7 @@
         color: #fce0dd;
         z-index: 2;
       }
+
       /* TEMPERATURA */
       .weather {
         left: 2346px;
@@ -148,7 +151,7 @@
         font-weight: 400;
         font-style: normal;
         letter-spacing: 1px;
-        color: #f1688a;
+        color: #560273;
       }
 
       /* DESCRIPCIÓN */
@@ -162,7 +165,7 @@
         font-family: "pacifico", sans-serif;
         font-weight: 400;
         font-style: normal;
-        color: #df394d;
+        color: #2a013d;
         white-space: pre-line;
         line-height: 0.84;
         text-align: center;
@@ -179,7 +182,7 @@
         font-family: "nitti-grotesk-condensed", sans-serif;
         font-weight: 300;
         font-style: normal;
-        color: #df394d;
+        color: #2a013d;
       }
     </style>
   </head>
@@ -202,8 +205,9 @@
       </div>
 
       <div id="clock" class="time grid-item" data-fit-text></div>
+      <div id="clock" class="time grid-item" data-fit-text></div>
       <div id="weekday" class="day grid-item" data-fit-text></div>
-     <div id="date" class="date"></div>
+      <div id="date" class="date"></div>
       <div id="city" class="city grid-item" data-fit-text>Bogotá</div>
       <div id="weather" class="weather grid-item" data-fit-text></div>
       <div id="weatherText" class="weather-description grid-item" data-fit-text></div>
@@ -428,7 +432,7 @@
           "Julio",
           "Agosto",
           "Sep",
-          "Octubre",
+          "Oct",
           "Noviembre",
           "Diciembre"
         ];
@@ -442,7 +446,6 @@
         document.getElementById("weekday").textContent = dayName;
 
         document.getElementById("date").textContent = `${day} de ${month}`;
-
         requestAnimationFrame(fitAllGridText);
       }
 
