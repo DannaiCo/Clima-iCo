@@ -4,9 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hora, Fecha y Clima</title>
-    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
-    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
-    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
+    <!-- Estilos de texto tomados de index(2): Arial, negrita y su paleta original. -->
 
     <style>
       body {
@@ -76,46 +74,41 @@
 
       /* HORA */
       .time {
-        left: 83px;
-        top: 11px;
+        left: 100px;
+        top: 0px;
         width: 200px;
         height: 110px;
-        --font-max: 120px;
+        --font-max: 70px;
         --font-min: 30px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        letter-spacing: 5px;
-        font-style: normal;
-        color: #ecc6f6;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        color: #ffffff;
       }
 
       /* DÍA DE LA SEMANA */
       .day {
-        left: 56px;
+        left: 70px;
         top: 102px;
         width: 254px;
         height: 34px;
-        --font-max: 25px;
+        --font-max: 35px;
         --font-min: 16px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        color: #ecc6f6;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        color: #04308c;
       }
 
       /* FECHA */
       .date {
-        left: 56px;
-        top: 132px;
+        left: 70px;
+        top: 134px;
         width: 255px;
         height: 36px;
-        --font-max: 28px;
+        --font-max: 35px;
         --font-min: 16px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        letter-spacing: 1.2px;
-        color: #ecc6f6;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        color: #04308c;
       }
 
       .date-pill {
@@ -123,66 +116,67 @@
         width: max-content;
         max-width: 100%;
         box-sizing: border-box;
-        padding: 2px 14px;
-        border-radius: 9999px;
-        background-color: #520e75;
-        border-style: solid;
-        border-width: thin;
-        border-color: #ecc6f6;
-        
+        /* Sin cápsula de fondo: index(2) mostraba solo el texto. */
       }
 
       /* TEMPERATURA */
       .weather {
-        left: 339px;
+        left: 420px;
         top: 42px;
         width: 176px;
-        height: 100px;
-        --font-max: 80px;
-        --font-min: 25px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        letter-spacing: 1px;
-        color: #560273;
+        height: 108px;
+        --font-max: 73px;
+        --font-min: 35px;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        color: #0857d3;
       }
 
       /* DESCRIPCIÓN */
       .weather-description {
-        left: 348px;
-        top: 117px;
-        width: 160px;
+        left: 408px;
+        top: 114px;
+        width: 209px;
         height: 59px;
-        --font-max: 40px;
+        --font-max: 22px;
         --font-min: 15px;
-        font-family: "pacifico", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        color: #2a013d;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        color: #04308c;
         white-space: pre-line;
-        line-height: 0.84;
+        line-height: 1.1;
         text-align: center;
+      }
+
+      /* ICONO SVG DEL CLIMA: a la derecha de la temperatura */
+      .weather-icon-big {
+        position: absolute;
+        left: 622px;
+        top: 37px;
+        width: 123px;
+        height: 110px;
+        object-fit: contain;
+        pointer-events: none;
       }
 
       /* CIUDAD */
       .city {
-        left: 339px;
-        top: 25px;
+        left: 420px;
+        top: 31px;
         width: 168px;
         height: 32px;
-        --font-max: 25px;
+        --font-max: 24px;
         --font-min: 12px;
-        font-family: "nitti-grotesk-condensed", sans-serif;
-        font-weight: 300;
-        font-style: normal;
-        color: #2a013d;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        color: #04308c;
       }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <!-- FONDO DINÁMICO -->
+      <!-- FONDO: alterna solamente entre día y noche -->
       <div id="backgroundContainer">
         <video
           id="fondoA"
@@ -191,8 +185,7 @@
           muted
           loop
           playsinline
-          preload="auto"
-          src="fondos/Despejado_Dia.mp4"></video>
+          preload="auto"></video>
 
         <video id="fondoB" class="weather-background" muted loop playsinline preload="auto"></video>
       </div>
@@ -205,21 +198,18 @@
       <div id="city" class="city grid-item" data-fit-text>Bogotá</div>
       <div id="weather" class="weather grid-item" data-fit-text></div>
       <div id="weatherText" class="weather-description grid-item" data-fit-text></div>
+      <img id="weatherIconBig" class="weather-icon-big" alt="Icono del clima" hidden />
     </div>
 
     <script>
       /* =========================================================
-         CONFIGURACIÓN
+         CONFIGURACIÓN DE VIDEOS
+         Ambos MP4 deben estar junto a este index.html.
+         El clima ya no influye en el fondo.
       ========================================================= */
 
-      /*
-        Si tus fondos son MP4 no debes cambiar nada.
-
-        Si posteriormente fueran WEBM:
-        const BACKGROUND_EXTENSION = "webm";
-      */
-
-      const BACKGROUND_EXTENSION = "mp4";
+      const BACKGROUND_DAY = "CLIMATM_DIA.mp4";
+      const BACKGROUND_NIGHT = "CLIMATM_NOCHE.mp4";
 
       /* =========================================================
          ZONAS DE BOGOTÁ
@@ -314,21 +304,15 @@
       console.log("Longitud:", currentZone.lon);
 
       /* =========================================================
-         ESTADO CLIMÁTICO ACTUAL
+         ESTADO ACTUAL
+         El icono utiliza la última condición meteorológica recibida.
+         Los fondos dependen exclusivamente de la hora de Bogotá.
       ========================================================= */
 
-      /*
-        Guardamos aquí la última condición obtenida.
-
-        Esto permite cambiar de Día → Noche a las 18:00
-        sin tener que volver a consultar inmediatamente la API.
-      */
-
       let currentWeatherCondition = "Despejado";
+      let hasWeatherData = false;
       let activeBackground = "A";
-
-      let currentBackgroundSrc = "fondos/Despejado_Dia.mp4";
-
+      let currentBackgroundSrc = "";
       let backgroundChanging = false;
 
       /* =========================================================
@@ -470,17 +454,9 @@
       function getWeatherCondition(weatherId, description) {
         const desc = description.toLowerCase();
 
-        /* ---------------------------------------------------------
-           VIENTO
-
-           Ya NO tiene condición propia.
-
-           Si por algún motivo OpenWeather devuelve una descripción
-           relacionada con viento, se mostrará DESPEJADO.
-        --------------------------------------------------------- */
-
+        /* Viento: dispone de icono SVG específico en index(2). */
         if (desc.includes("viento")) {
-          return "Despejado";
+          return "Viento";
         }
 
         /* ---------------------------------------------------------
@@ -567,13 +543,56 @@
       }
 
       /* =========================================================
-         FONDO SEGÚN CLIMA + DÍA / NOCHE
+         ICONO SVG SEGÚN EL CLIMA Y EL MOMENTO DEL DÍA
+         Se conservan los nombres de los SVG de index(2).
       ========================================================= */
 
-      function getWeatherBackground(condition) {
-        const period = isNightTime() ? "Noche" : "Dia";
+      function getWeatherIcon(condition) {
+        const night = isNightTime();
 
-        return `fondos/${condition}_${period}.` + BACKGROUND_EXTENSION;
+        const icons = {
+          Tormenta: "Iconos/Tormenta.svg",
+          Lluvia_Fuerte: "Iconos/Lluvia_Fuerte.svg",
+          Lluvia_Suave: "Iconos/Lluvia_Suave.svg",
+          Nublado: "Iconos/Nublado.svg",
+          Viento: "Iconos/Vientos_fuertes.svg",
+          Parcialmente_Nublado: night
+            ? "Iconos/Parcialmente_Nublado_Noche.svg"
+            : "Iconos/Parcialmente_Nublado.svg",
+          Despejado: night ? "Iconos/Despejado_Noche.svg" : "Iconos/Soleado.svg"
+        };
+
+        return icons[condition] || icons.Despejado;
+      }
+
+      function updateWeatherIcon() {
+        if (!hasWeatherData) return;
+
+        const icon = document.getElementById("weatherIconBig");
+        const newSrc = getWeatherIcon(currentWeatherCondition);
+        if (icon.getAttribute("src") !== newSrc) {
+          icon.src = newSrc;
+        }
+        icon.hidden = false;
+      }
+
+      /* =========================================================
+         FONDO: SOLO DÍA / NOCHE
+      ========================================================= */
+
+      function getDayNightBackground() {
+        return isNightTime() ? BACKGROUND_NIGHT : BACKGROUND_DAY;
+      }
+
+      function initializeBackground() {
+        const video = document.getElementById("fondoA");
+        currentBackgroundSrc = getDayNightBackground();
+        video.src = currentBackgroundSrc;
+        video.load();
+        const playback = video.play();
+        if (playback && typeof playback.catch === "function") {
+          playback.catch((error) => console.warn("El reproductor no inició el video:", error));
+        }
       }
 
       /* =========================================================
@@ -619,8 +638,8 @@
         });
       }
 
-      async function updateWeatherBackground() {
-        const newSrc = getWeatherBackground(currentWeatherCondition);
+      async function updateDayNightBackground() {
+        const newSrc = getDayNightBackground();
 
         /*
     Si ya tenemos ese mismo fondo,
@@ -763,15 +782,11 @@
       }
       /* =========================================================
          ACTUALIZAR VISUALES
+         El clima afecta al texto y al SVG, NO al video de fondo.
       ========================================================= */
 
       function updateWeatherVisuals() {
-        /*
-          El fondo representa la condición meteorológica actual
-          y cambia también según la hora de Bogotá.
-        */
-
-        updateWeatherBackground();
+        updateWeatherIcon();
       }
 
       /* =========================================================
@@ -819,6 +834,7 @@
             */
 
             currentWeatherCondition = getWeatherCondition(weatherId, description);
+            hasWeatherData = true;
 
             /* TEMPERATURA */
 
@@ -832,6 +848,7 @@
               Lluvia_Suave: "Llovizna",
               Nublado: "Nublado",
               Parcialmente_Nublado: "Parcialmente\nnublado",
+              Viento: "Viento",
               Despejado: "Soleado"
             };
 
@@ -841,7 +858,7 @@
 
             document.getElementById("city").textContent = "Bogotá";
 
-            /* FONDO */
+            /* ICONO SVG: el fondo no cambia con el clima */
 
             updateWeatherVisuals();
 
@@ -859,10 +876,12 @@
           }
         } catch (error) {
           console.error("Error obteniendo el clima:", error);
+          hasWeatherData = false;
 
           document.getElementById("weather").textContent = "--";
 
           document.getElementById("weatherText").textContent = "";
+          document.getElementById("weatherIconBig").hidden = true;
 
           requestAnimationFrame(fitAllGridText);
         }
@@ -882,16 +901,19 @@
           o
           05:59 → 06:00
 
-          se actualiza el fondo aunque todavía
-          no hayan pasado los 10 minutos de la API.
+          se actualizan el video de fondo y el icono SVG,
+          sin esperar la siguiente consulta meteorológica.
         */
 
-        updateWeatherVisuals();
+        updateDayNightBackground();
+        updateWeatherIcon();
       }
 
       /* =========================================================
          INICIALIZACIÓN
       ========================================================= */
+
+      initializeBackground();
 
       updateClock();
 
