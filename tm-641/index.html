@@ -4,9 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hora, Fecha y Clima</title>
-    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
-    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
-    <link rel="stylesheet" href="https://use.typekit.net/vsp7vcb.css" />
 
     <style>
       body {
@@ -18,6 +15,7 @@
         height: 192px;
         background: #000;
         font-family: Arial, sans-serif;
+        font-weight: bold;
       }
 
       #backgroundContainer {
@@ -26,7 +24,7 @@
         left: 0;
         width: 641px;
         height: 192px;
-        z-index: -1;
+        z-index: 0;
         overflow: hidden;
         background: #000;
       }
@@ -35,20 +33,11 @@
         position: absolute;
         top: 0;
         left: 0;
-
         width: 641px;
         height: 192px;
-
         object-fit: cover;
-
         opacity: 0;
-
-        /*
-    Transición muy corta para evitar
-    cualquier frame intermedio.
-  */
         transition: opacity 0.15s linear;
-
         pointer-events: none;
       }
 
@@ -65,6 +54,7 @@
 
       .grid-item {
         position: absolute;
+        z-index: 1;
         display: grid;
         place-items: center;
         box-sizing: border-box;
@@ -73,50 +63,45 @@
         text-align: center;
         line-height: 1;
         font-size: var(--font-max);
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-style: normal;
       }
+
+      /* Las coordenadas, las dimensiones y los tamaños máximos
+         corresponden exactamente a las áreas del HTML recibido. */
 
       /* HORA */
       .time {
-        left: 49px;
-        top: 12px;
+        left: 67px;
+        top: 4px;
         width: 151px;
         height: 110px;
         --font-max: 120px;
         --font-min: 30px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        letter-spacing: 5px;
-        font-style: normal;
-        color: #ecc6f6;
+        color: #ffffff;
       }
 
       /* DÍA DE LA SEMANA */
       .day {
-        left: 32px;
-        top: 98px;
-        width: 184px;
+        left: 23px;
+        top: 94px;
+        width: 243px;
         height: 34px;
-        --font-max: 25px;
+        --font-max: 40px;
         --font-min: 16px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        color: #ecc6f6;
+        color: #04308c;
       }
 
       /* FECHA */
       .date {
-        left: 36px;
+        left: 23px;
         top: 132px;
-        width: 175px;
+        width: 243px;
         height: 36px;
-        --font-max: 24px;
+        --font-max: 40px;
         --font-min: 16px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        letter-spacing: 1.2px;
-        color: #ecc6f6;
+        color: #04308c;
       }
 
       .date-pill {
@@ -124,76 +109,64 @@
         width: max-content;
         max-width: 100%;
         box-sizing: border-box;
-        padding: 4px 14px;
-        border-radius: 9999px;
-        background-color: #520e75;
-        border-style: solid;
-        border-width: thin;
-        border-color: #ecc6f6;
+        /* Sin cápsula ni fondo: se conserva el span y el área original. */
       }
 
       /* TEMPERATURA */
       .weather {
-        left: 249px;
+        left: 305px;
         top: 38px;
-        width: 133px;
-        height: 100px;
-        --font-max: 72px;
-        --font-min: 25px;
-        font-family: "alphabet-soup-pro", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        letter-spacing: 1px;
-        color: #560273;
+        width: 136px;
+        height: 105px;
+        --font-max: 80px;
+        --font-min: 20px;
+        color: #0857d3;
       }
 
       /* DESCRIPCIÓN */
       .weather-description {
-        left: 247px;
-        top: 112px;
+        left: 305px;
+        top: 109px;
         width: 132px;
-        height: 59px;
-        --font-max: 40px;
-        --font-min: 15px;
-        font-family: "pacifico", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        color: #2a013d;
+        height: 39px;
+        --font-max: 25px;
+        --font-min: 10px;
+        color: #04308c;
         white-space: pre-line;
-        line-height: 0.84;
         text-align: center;
       }
 
       /* CIUDAD */
       .city {
-        left: 249px;
-        top: 23px;
+        left: 305px;
+        top: 36px;
         width: 128px;
         height: 32px;
-        --font-max: 25px;
+        --font-max: 18px;
         --font-min: 12px;
-        font-family: "nitti-grotesk-condensed", sans-serif;
-        font-weight: 300;
-        font-style: normal;
-        color: #2a013d;
+        color: #04308c;
+      }
+
+      /* NUEVO ÍCONO: espacio libre, sin desplazar elementos existentes. */
+      .weather-icon-big {
+        position: absolute;
+        z-index: 1;
+        left: 461px;
+        top: 48px;
+        width: 95px;
+        height: 95px;
+        object-fit: contain;
+        pointer-events: none;
+        visibility: hidden;
       }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <!-- FONDO DINÁMICO -->
+      <!-- Videos precargados: se muestran solo por hora de Bogotá. -->
       <div id="backgroundContainer">
-        <video
-          id="fondoA"
-          class="weather-background active"
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="auto"
-          src="fondos/Despejado_Dia.mp4"></video>
-
+        <video id="fondoA" class="weather-background" muted loop playsinline preload="auto"></video>
         <video id="fondoB" class="weather-background" muted loop playsinline preload="auto"></video>
       </div>
 
@@ -205,686 +178,328 @@
       <div id="city" class="city grid-item" data-fit-text>Bogotá</div>
       <div id="weather" class="weather grid-item" data-fit-text></div>
       <div id="weatherText" class="weather-description grid-item" data-fit-text></div>
+      <img id="weatherIconBig" class="weather-icon-big" alt="Estado del clima" />
     </div>
 
     <script>
-      /* =========================================================
-         CONFIGURACIÓN
-      ========================================================= */
+      "use strict";
 
-      /*
-        Si tus fondos son MP4 no debes cambiar nada.
-
-        Si posteriormente fueran WEBM:
-        const BACKGROUND_EXTENSION = "webm";
-      */
-
-      const BACKGROUND_EXTENSION = "mp4";
-
-      /* =========================================================
-         ZONAS DE BOGOTÁ
-      ========================================================= */
-
-      const WEATHER_ZONES = {
-        // 106
-
-        106: {
-          name: "Estacion106",
-          lat: 4.693752,
-          lon: -74.056068
-        },
-
-        // Zona utilizada como respaldo
-
-        centro: {
-          name: "Centro",
-          // lat: 4.647669,
-          //  lon: -74.105506
-          lat: 4.693752,
-          lon: -74.056068
-        }
+      const BOGOTA_TIMEZONE = "America/Bogota";
+      const BACKGROUND_FILES = {
+        Dia: "CLIMATM_DIA.mp4",
+        Noche: "CLIMATM_NOCHE.mp4"
       };
 
-      /* =========================================================
-         SELECCIÓN DE ZONA DESDE URL
-      ========================================================= */
+      /* Se conservan las zonas y sus coordenadas originales. */
+      const WEATHER_ZONES = {
+        106: { name: "Estacion106", lat: 4.693752, lon: -74.056068 },
+        centro: { name: "Centro", lat: 4.693752, lon: -74.056068 }
+      };
 
-      /*
-        Ejemplos:
-
-        index.html?zona=troncalnorte
-        index.html?zona=troncal80
-        index.html?zona=troncalnqs
-        index.html?zona=troncalautosur
-        index.html?zona=troncalcaracas
-        index.html?zona=troncalsuba
-
-        Si no existe el parámetro, utiliza "centro".
-      */
-
+      /* Ejemplos: index.html?zona=106 / ?zona=centro
+         Comparación sin distinguir mayúsculas y minúsculas. */
       const params = new URLSearchParams(window.location.search);
-
       const requestedZone = (params.get("zona") || "centro").toLowerCase();
+      const currentZone =
+        Object.entries(WEATHER_ZONES).find(([key]) => key.toLowerCase() === requestedZone)?.[1] || WEATHER_ZONES.centro;
 
-      const currentZone = WEATHER_ZONES[requestedZone] || WEATHER_ZONES.centro;
+      const bogotaFormatter = new Intl.DateTimeFormat("es-CO", {
+        timeZone: BOGOTA_TIMEZONE,
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+      });
 
-      console.log("Zona de clima:", currentZone.name);
-      console.log("Latitud:", currentZone.lat);
-      console.log("Longitud:", currentZone.lon);
-
-      /* =========================================================
-         ESTADO CLIMÁTICO ACTUAL
-      ========================================================= */
-
-      /*
-        Guardamos aquí la última condición obtenida.
-
-        Esto permite cambiar de Día → Noche a las 18:00
-        sin tener que volver a consultar inmediatamente la API.
-      */
-
-      let currentWeatherCondition = "Despejado";
-      let activeBackground = "A";
-
-      let currentBackgroundSrc = "fondos/Despejado_Dia.mp4";
-
-      let backgroundChanging = false;
-
-      /* =========================================================
-         HORA DE BOGOTÁ
-      ========================================================= */
-
-      function getBogotaHour() {
-        /*
-          Utilizamos explícitamente America/Bogota.
-
-          Así, aunque el reproductor DOOH tenga otra zona
-          horaria configurada, Día / Noche seguirá funcionando
-          con la hora real de Bogotá.
-        */
-
-        const hourString = new Intl.DateTimeFormat("en-US", {
-          timeZone: "America/Bogota",
-          hour: "2-digit",
-          hourCycle: "h23"
-        }).format(new Date());
-
-        return parseInt(hourString, 10);
+      function getBogotaParts() {
+        return Object.fromEntries(
+          bogotaFormatter
+            .formatToParts(new Date())
+            .filter((part) => part.type !== "literal")
+            .map((part) => [part.type, part.value])
+        );
       }
 
-      /* =========================================================
-         DÍA / NOCHE
-      ========================================================= */
-
       function isNightTime() {
-        const hour = getBogotaHour();
-
-        /*
-          NOCHE:
-          18:00 → 05:59
-
-          DÍA:
-          06:00 → 17:59
-        */
-
+        const hour = Number(getBogotaParts().hour);
         return hour >= 18 || hour < 6;
       }
 
-      /* =========================================================
-         AJUSTE AUTOMÁTICO DEL TEXTO A SU CELDA
-      ========================================================= */
+      function currentPeriod() {
+        return isNightTime() ? "Noche" : "Dia";
+      }
 
+      /* Ajuste de fuente que mide los glifos reales, incluidos saltos
+         de línea; jamás cambia tamaño o posición de un contenedor. */
       const GRID_TEXT_SELECTOR = "[data-fit-text]";
 
       function textFitsGridCell(element) {
-        const content = element.firstElementChild || element;
-
-        return content.scrollWidth <= element.clientWidth + 1 && content.scrollHeight <= element.clientHeight + 1;
+        const cell = element.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const rectangles = Array.from(range.getClientRects());
+        return rectangles.every(
+          (rect) =>
+            rect.left >= cell.left - 0.5 &&
+            rect.right <= cell.right + 0.5 &&
+            rect.top >= cell.top - 0.5 &&
+            rect.bottom <= cell.bottom + 0.5
+        );
       }
 
       function fitTextToGridCell(element) {
-        const styles = getComputedStyle(element);
-        const maximumSize = parseFloat(styles.getPropertyValue("--font-max"));
-        const minimumSize = parseFloat(styles.getPropertyValue("--font-min")) || 8;
+        if (!element.clientWidth || !element.clientHeight) return;
+        const style = getComputedStyle(element);
+        const max = parseFloat(style.getPropertyValue("--font-max"));
+        const preferredMin = parseFloat(style.getPropertyValue("--font-min")) || 8;
+        if (!max) return;
 
-        if (!maximumSize || element.clientWidth === 0 || element.clientHeight === 0) {
-          return;
+        element.style.fontSize = `${max}px`;
+        if (textFitsGridCell(element)) return;
+
+        let low = preferredMin;
+        element.style.fontSize = `${low}px`;
+        // Tamaño mínimo flexible si un texto excepcional aún no cabe.
+        if (!textFitsGridCell(element)) low = 8;
+        let high = max;
+
+        for (let i = 0; i < 14; i += 1) {
+          const mid = (low + high) / 2;
+          element.style.fontSize = `${mid}px`;
+          if (textFitsGridCell(element)) low = mid;
+          else high = mid;
         }
-
-        element.style.fontSize = `${maximumSize}px`;
-
-        if (textFitsGridCell(element)) {
-          return;
-        }
-
-        let lowerSize = minimumSize;
-        let upperSize = maximumSize;
-
-        for (let attempt = 0; attempt < 12; attempt += 1) {
-          const testSize = (lowerSize + upperSize) / 2;
-
-          element.style.fontSize = `${testSize}px`;
-
-          if (textFitsGridCell(element)) {
-            lowerSize = testSize;
-          } else {
-            upperSize = testSize;
-          }
-        }
-
-        element.style.fontSize = `${Math.floor(lowerSize * 10) / 10}px`;
+        element.style.fontSize = `${Math.floor(low * 10) / 10}px`;
       }
 
       function fitAllGridText() {
         document.querySelectorAll(GRID_TEXT_SELECTOR).forEach(fitTextToGridCell);
+        // En este formato compacto las celdas visuales se solapan
+        // por geometria original. Limitamos solo los glifos de grados
+        // para no invadir ciudad o descripcion, sin mover las celdas.
+        const temperature = document.getElementById("weather");
+        if (parseFloat(temperature.style.fontSize) > 50) {
+          temperature.style.fontSize = "50px";
+        }
       }
 
-      /* =========================================================
-         RELOJ, DÍA Y FECHA
-      ========================================================= */
+      function capitalized(value) {
+        return value.charAt(0).toUpperCase() + value.slice(1);
+      }
 
       function updateClock() {
-        const now = new Date();
-
-        const hours = String(now.getHours()).padStart(2, "0");
-
-        const minutes = String(now.getMinutes()).padStart(2, "0");
-
-        document.getElementById("clock").textContent = `${hours}:${minutes}`;
-
-        const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-
-        const months = [
-          "Enero",
-          "Febrero",
-          "Marzo",
-          "Abril",
-          "Mayo",
-          "Junio",
-          "Julio",
-          "Septiembre",
-          "Septiembre",
-          "Octubre",
-          "Noviembre",
-          "Diciembre"
-        ];
-
-        const dayName = days[now.getDay()];
-
-        const day = now.getDate();
-
-        const month = months[now.getMonth()];
-
-        document.getElementById("weekday").textContent = dayName;
-
-        document.getElementById("dateText").textContent = `${day} de ${month}`;
-
+        const parts = getBogotaParts();
+        document.getElementById("clock").textContent = `${parts.hour}:${parts.minute}`;
+        document.getElementById("weekday").textContent = capitalized(parts.weekday);
+        document.getElementById("dateText").textContent = `${Number(parts.day)} de ${capitalized(parts.month)}`;
         requestAnimationFrame(fitAllGridText);
       }
 
-      /* =========================================================
-         DETERMINAR TIPO DE CLIMA
-      ========================================================= */
-
-      function getWeatherCondition(weatherId, description) {
-        const desc = description.toLowerCase();
-
-        /* ---------------------------------------------------------
-           VIENTO
-
-           Ya NO tiene condición propia.
-
-           Si por algún motivo OpenWeather devuelve una descripción
-           relacionada con viento, se mostrará DESPEJADO.
-        --------------------------------------------------------- */
-
-        if (desc.includes("viento")) {
-          return "Despejado";
-        }
-
-        /* ---------------------------------------------------------
-           TORMENTA
-           OpenWeather IDs: 200 - 299
-        --------------------------------------------------------- */
-
-        if (weatherId >= 200 && weatherId < 300) {
-          return "Tormenta";
-        }
-
-        /* ---------------------------------------------------------
-           LLOVIZNA
-           OpenWeather IDs: 300 - 399
-        --------------------------------------------------------- */
-
-        if (weatherId >= 300 && weatherId < 400) {
-          return "Lluvia_Suave";
-        }
-
-        /* ---------------------------------------------------------
-           LLUVIA
-           OpenWeather IDs: 500 - 599
-        --------------------------------------------------------- */
-
-        if (weatherId >= 500 && weatherId < 600) {
-          /*
-            Condiciones consideradas lluvia fuerte.
-          */
-
+      /* Clasificación por códigos OpenWeather; la descripción solo
+         complementa los identificadores de lluvia. */
+      function getWeatherCondition(weatherId, description = "") {
+        const id = Number(weatherId);
+        const desc = String(description).toLowerCase();
+        if (id >= 200 && id < 300) return "Tormenta";
+        if (id >= 300 && id < 400) return "Lluvia_Suave";
+        if (id >= 500 && id < 600) {
           const strongRainIds = [502, 503, 504, 511, 522, 531];
-
-          if (
-            strongRainIds.includes(weatherId) ||
-            desc.includes("fuerte") ||
-            desc.includes("intensa") ||
-            desc.includes("gran intensidad") ||
-            desc.includes("extrema")
-          ) {
-            return "Lluvia_Fuerte";
-          }
-
-          return "Lluvia_Suave";
+          return strongRainIds.includes(id) || /fuerte|intensa|gran intensidad|extrema/.test(desc)
+            ? "Lluvia_Fuerte"
+            : "Lluvia_Suave";
         }
-
-        /* ---------------------------------------------------------
-           DESPEJADO
-           OpenWeather ID: 800
-        --------------------------------------------------------- */
-
-        if (weatherId === 800) {
-          return "Despejado";
-        }
-
-        /* ---------------------------------------------------------
-           PARCIALMENTE NUBLADO
-           OpenWeather IDs: 801 - 802
-
-           801 = algunas nubes
-           802 = nubes dispersas
-        --------------------------------------------------------- */
-
-        if (weatherId === 801 || weatherId === 802 || weatherId === 803) {
-          return "Parcialmente_Nublado";
-        }
-
-        /* ---------------------------------------------------------
-           NUBLADO
-           OpenWeather IDs: 803 - 804
-        --------------------------------------------------------- */
-
-        if (weatherId === 804) {
-          return "Nublado";
-        }
-        /* ---------------------------------------------------------
-           RESPALDO
-
-           Si llega una condición que no tenemos contemplada
-           gráficamente, utilizamos Despejado.
-        --------------------------------------------------------- */
-
+        if (id === 800) return "Despejado";
+        if (id >= 801 && id <= 803) return "Parcialmente_Nublado";
+        if (id === 804) return "Nublado";
         return "Despejado";
       }
 
-      /* =========================================================
-         FONDO SEGÚN CLIMA + DÍA / NOCHE
-      ========================================================= */
+      /* Nombres y rutas obtenidos de index(2).html.
+         Para los estados sin variante nocturna se usa el mismo SVG. */
+      const WEATHER_ICON_FILES = {
+        Despejado: {
+          Dia: "Iconos/Soleado.svg",
+          Noche: "Iconos/Despejado_Noche.svg"
+        },
+        Parcialmente_Nublado: {
+          Dia: "Iconos/Parcialmente_Nublado.svg",
+          Noche: "Iconos/Parcialmente_Nublado_Noche.svg"
+        },
+        Nublado: {
+          Dia: "Iconos/Nublado.svg",
+          Noche: "Iconos/Nublado.svg"
+        },
+        Lluvia_Suave: {
+          Dia: "Iconos/Lluvia_Suave.svg",
+          Noche: "Iconos/Lluvia_Suave.svg"
+        },
+        Lluvia_Fuerte: {
+          Dia: "Iconos/Lluvia_Fuerte.svg",
+          Noche: "Iconos/Lluvia_Fuerte.svg"
+        },
+        Tormenta: {
+          Dia: "Iconos/Tormenta.svg",
+          Noche: "Iconos/Tormenta.svg"
+        }
+      };
 
-      function getWeatherBackground(condition) {
-        const period = isNightTime() ? "Noche" : "Dia";
+      const WEATHER_LABELS = {
+        Tormenta: "Tormenta",
+        Lluvia_Fuerte: "Lluvia",
+        Lluvia_Suave: "Llovizna",
+        Nublado: "Nublado",
+        Parcialmente_Nublado: "Parcialmente\nnublado",
+        Despejado: "Soleado"
+      };
 
-        return `fondos/${condition}_${period}.` + BACKGROUND_EXTENSION;
+      let currentWeatherCondition = "Despejado";
+
+      function updateWeatherIcon() {
+        const period = currentPeriod();
+        const icon = document.getElementById("weatherIconBig");
+        const newPath = WEATHER_ICON_FILES[currentWeatherCondition][period];
+        if (icon.getAttribute("src") !== newPath) icon.setAttribute("src", newPath);
+        const label =
+          currentWeatherCondition === "Despejado" && period === "Noche"
+            ? "Despejado"
+            : WEATHER_LABELS[currentWeatherCondition];
+        document.getElementById("weatherText").textContent = label;
+        requestAnimationFrame(fitAllGridText);
       }
 
-      /* =========================================================
-         ACTUALIZAR FONDO
-      ========================================================= */
+      /* Dos reproductores persistentes: un archivo por periodo.
+         Se cargan una sola vez y se conserva el último fotograma visible
+         hasta tener el siguiente video reproduciéndose. */
+      const videos = {
+        Dia: document.getElementById("fondoA"),
+        Noche: document.getElementById("fondoB")
+      };
+      let activePeriod = null;
+      let backgroundChanging = false;
+
       function waitForVideo(video) {
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return Promise.resolve();
         return new Promise((resolve, reject) => {
-          /*
-        readyState >= 2 significa
-        HAVE_CURRENT_DATA.
-
-        Es decir:
-        ya tenemos un frame disponible.
-      */
-
-          if (video.readyState >= 2) {
-            resolve();
-
-            return;
+          function finish(error) {
+            video.removeEventListener("loadeddata", onLoaded);
+            video.removeEventListener("error", onError);
+            error ? reject(error) : resolve();
           }
+          function onLoaded() {
+            finish();
+          }
+          function onError() {
+            finish(new Error(`No se pudo cargar el archivo: ${video.getAttribute("src")}`));
+          }
+          video.addEventListener("loadeddata", onLoaded);
+          video.addEventListener("error", onError);
+          if (video.error) onError();
+        });
+      }
 
-          const handleLoaded = () => {
-            cleanup();
-
-            resolve();
-          };
-
-          const handleError = () => {
-            cleanup();
-
-            reject(new Error("No se pudo cargar el video: " + video.src));
-          };
-
-          const cleanup = () => {
-            video.removeEventListener("loadeddata", handleLoaded);
-
-            video.removeEventListener("error", handleError);
-          };
-
-          video.addEventListener("loadeddata", handleLoaded, { once: true });
-
-          video.addEventListener("error", handleError, { once: true });
+      function waitForPaintedFrame(video) {
+        return new Promise((resolve) => {
+          if (typeof video.requestVideoFrameCallback === "function") {
+            video.requestVideoFrameCallback(() => resolve());
+          } else {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+          }
         });
       }
 
       async function updateWeatherBackground() {
-        const newSrc = getWeatherBackground(currentWeatherCondition);
-
-        /*
-    Si ya tenemos ese mismo fondo,
-    no hacemos absolutamente nada.
-  */
-
-        if (newSrc === currentBackgroundSrc) {
-          return;
-        }
-
-        /*
-    Evitamos cambios simultáneos.
-  */
-
-        if (backgroundChanging) {
-          return;
-        }
-
+        const desiredPeriod = currentPeriod();
+        if (activePeriod === desiredPeriod || backgroundChanging) return;
         backgroundChanging = true;
 
-        /*
-    Determinamos cuál video está visible
-    y cuál utilizaremos para precargar.
-  */
-
-        const activeVideo =
-          activeBackground === "A" ? document.getElementById("fondoA") : document.getElementById("fondoB");
-
-        const preloadVideo =
-          activeBackground === "A" ? document.getElementById("fondoB") : document.getElementById("fondoA");
-
+        const nextVideo = videos[desiredPeriod];
+        const previousPeriod = activePeriod;
+        const previousVideo = previousPeriod ? videos[previousPeriod] : null;
         try {
-          console.log("Precargando nuevo fondo:", newSrc);
-
-          /*
-      Primero dejamos totalmente oculto
-      el video que servirá como buffer.
-    */
-
-          preloadVideo.classList.remove("active");
-
-          /*
-      Asignamos el nuevo archivo.
-    */
-
-          preloadVideo.src = newSrc;
-
-          /*
-      Pedimos al navegador que comience
-      a cargarlo.
-    */
-
-          preloadVideo.load();
-
-          /*
-      ESPERAMOS hasta que el navegador
-      tenga un frame disponible.
-
-      loadeddata significa que ya puede
-      pintar el primer frame.
-    */
-
-          await waitForVideo(preloadVideo);
-
-          /*
-      Lo llevamos al inicio.
-    */
-
-          preloadVideo.currentTime = 0;
-
-          /*
-      Comenzamos a reproducirlo ANTES
-      de hacerlo visible.
-    */
-
-          await preloadVideo.play();
-
-          /*
-      Esperamos un frame del navegador.
-
-      Así evitamos mostrar el elemento
-      antes de que realmente haya pintado
-      el video.
-    */
-
-          await new Promise((resolve) => {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(resolve);
-            });
-          });
-
-          /*
-      AHORA sí hacemos visible
-      el nuevo fondo.
-    */
-
-          preloadVideo.classList.add("active");
-
-          /*
-      Quitamos el anterior.
-
-      Como el nuevo ya está reproduciéndose,
-      nunca aparece el fondo vacío.
-    */
-
-          activeVideo.classList.remove("active");
-
-          /*
-      Actualizamos variables.
-    */
-
-          activeBackground = activeBackground === "A" ? "B" : "A";
-
-          currentBackgroundSrc = newSrc;
-
-          /*
-      Esperamos a que termine
-      la pequeña transición.
-    */
-
-          setTimeout(() => {
-            activeVideo.pause();
-
-            /*
-        Opcionalmente lo dejamos vacío
-        para liberar memoria.
-      */
-
-            activeVideo.removeAttribute("src");
-
-            activeVideo.load();
-          }, 300);
-
-          console.log("Fondo cambiado correctamente:", newSrc);
+          await waitForVideo(nextVideo);
+          await nextVideo.play();
+          await waitForPaintedFrame(nextVideo);
+          nextVideo.classList.add("active");
+          if (previousVideo) {
+            previousVideo.classList.remove("active");
+            setTimeout(() => {
+              if (activePeriod !== previousPeriod) previousVideo.pause();
+            }, 200);
+          }
+          activePeriod = desiredPeriod;
         } catch (error) {
-          console.error("Error cambiando fondo:", error);
+          // Ante un error se mantiene el último fondo visible.
+          console.error("Error en el cambio de fondo:", error);
         } finally {
           backgroundChanging = false;
+          // Si hay un error de lectura no se inicia un ciclo de reintentos:
+          // el próximo chequeo de minuto puede volver a intentarlo.
         }
       }
-      /* =========================================================
-         ACTUALIZAR VISUALES
-      ========================================================= */
 
-      function updateWeatherVisuals() {
-        /*
-          El fondo representa la condición meteorológica actual
-          y cambia también según la hora de Bogotá.
-        */
-
+      function initializeBackgroundVideos() {
+        Object.entries(videos).forEach(([period, video]) => {
+          video.src = BACKGROUND_FILES[period];
+          video.load();
+        });
         updateWeatherBackground();
       }
 
-      /* =========================================================
-         CLIMA API
-      ========================================================= */
-
+      /* OpenWeather conserva el API key y las coordenadas existentes. */
       async function fetchWeather() {
         const apiKey = "65fd2c24a1679d15f7b59502783522f7";
-
-        const lat = currentZone.lat;
-
-        const lon = currentZone.lon;
-
+        const { lat, lon } = currentZone;
         const url =
           `https://api.openweathermap.org/data/2.5/weather` +
-          `?lat=${lat}` +
-          `&lon=${lon}` +
-          `&appid=${apiKey}` +
-          `&units=metric` +
-          `&lang=es`;
-
+          `?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
         try {
           const response = await fetch(url);
-
-          if (!response.ok) {
-            throw new Error(`Error OpenWeather: ${response.status}`);
-          }
-
+          if (!response.ok) throw new Error(`Error OpenWeather: ${response.status}`);
           const data = await response.json();
+          if (!data.weather?.length || !data.main) throw new Error("Respuesta meteorológica incompleta");
 
-          if (data.weather && data.weather.length > 0 && data.main) {
-            /* TEMPERATURA */
-
-            const temperature = Math.round(data.main.temp);
-
-            /* DATOS OPENWEATHER */
-
-            const weatherId = data.weather[0].id;
-
-            const description = data.weather[0].description;
-
-            /*
-              Convertimos la condición de OpenWeather
-              a una de nuestras 6 categorías gráficas.
-            */
-
-            currentWeatherCondition = getWeatherCondition(weatherId, description);
-
-            /* TEMPERATURA */
-
-            document.getElementById("weather").textContent = `${temperature}°C`;
-
-            /* DESCRIPCIÓN */
-
-            const WEATHER_LABELS = {
-              Tormenta: "Tormenta",
-              Lluvia_Fuerte: "Lluvia",
-              Lluvia_Suave: "Llovizna",
-              Nublado: "Nublado",
-              Parcialmente_Nublado: "Parcialmente\nnublado",
-              Despejado: "Soleado"
-            };
-
-            document.getElementById("weatherText").textContent = WEATHER_LABELS[currentWeatherCondition] || "Soleado";
-
-            /* CIUDAD */
-
-            document.getElementById("city").textContent = "Bogotá";
-
-            /* FONDO */
-
-            updateWeatherVisuals();
-
-            requestAnimationFrame(fitAllGridText);
-
-            console.log(`Clima actualizado - Bogotá ${currentZone.name}`, {
-              temperatura: temperature,
-              descripcion: description,
-              weatherId: weatherId,
-              condicionVisual: currentWeatherCondition,
-              periodo: isNightTime() ? "Noche" : "Día",
-              latitud: lat,
-              longitud: lon
-            });
-          }
+          const { id, description } = data.weather[0];
+          currentWeatherCondition = getWeatherCondition(id, description);
+          document.getElementById("weather").textContent = `${Math.round(data.main.temp)}°C`;
+          document.getElementById("city").textContent = "Bogotá";
+          updateWeatherIcon();
         } catch (error) {
           console.error("Error obteniendo el clima:", error);
-
           document.getElementById("weather").textContent = "--";
-
           document.getElementById("weatherText").textContent = "";
-
           requestAnimationFrame(fitAllGridText);
         }
       }
 
-      /* =========================================================
-         REVISAR CAMBIO DÍA / NOCHE
-      ========================================================= */
-
+      /* Se ejecuta cada minuto y no toca la reproducción si no hubo cambio. */
       function checkDayNightChange() {
-        /*
-          Se ejecuta cada minuto.
-
-          Si llega exactamente la transición:
-
-          17:59 → 18:00
-          o
-          05:59 → 06:00
-
-          se actualiza el fondo aunque todavía
-          no hayan pasado los 10 minutos de la API.
-        */
-
-        updateWeatherVisuals();
+        updateWeatherIcon();
+        updateWeatherBackground();
       }
 
-      /* =========================================================
-         INICIALIZACIÓN
-      ========================================================= */
+      document.getElementById("weatherIconBig").addEventListener("error", (event) => {
+        event.currentTarget.style.visibility = "hidden";
+        console.error("No se pudo cargar el SVG:", event.currentTarget.getAttribute("src"));
+      });
+      document.getElementById("weatherIconBig").addEventListener("load", (event) => {
+        event.currentTarget.style.visibility = "visible";
+      });
 
       updateClock();
-
+      updateWeatherIcon();
       fitAllGridText();
-
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(fitAllGridText);
-      }
-
+      if (document.fonts?.ready) document.fonts.ready.then(fitAllGridText);
       window.addEventListener("resize", fitAllGridText);
-
       if ("ResizeObserver" in window) {
-        const gridResizeObserver = new ResizeObserver(fitAllGridText);
-
-        gridResizeObserver.observe(document.querySelector(".container"));
+        new ResizeObserver(fitAllGridText).observe(document.querySelector(".container"));
       }
 
-      setInterval(updateClock, 1000);
-
-      /*
-        Primera carga meteorológica.
-      */
-
+      initializeBackgroundVideos();
       fetchWeather();
-
-      /*
-        Actualización API cada 10 minutos.
-      */
-
+      setInterval(updateClock, 1000);
       setInterval(fetchWeather, 10 * 60 * 1000);
-
-      /*
-        Comprobación Día / Noche cada minuto.
-      */
-
       setInterval(checkDayNightChange, 60 * 1000);
     </script>
   </body>
