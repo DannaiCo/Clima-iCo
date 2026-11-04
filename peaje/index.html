@@ -205,6 +205,20 @@
     </div>
 
     <script>
+      function escalarStage() {
+        const stage = document.querySelector(".stage");
+
+        const scaleX = window.innerWidth / 4147;
+        const scaleY = window.innerHeight / 1556;
+
+        const scale = Math.min(scaleX, scaleY);
+
+        stage.style.transform = `scale(${scale})`;
+      }
+
+      window.addEventListener("resize", escalarStage);
+      window.addEventListener("load", escalarStage);
+
       const WEATHER_ZONES = {
         peaje: { name: "Peaje", lat: 4.707654, lon: -74.053761 },
         centro: { name: "Centro", lat: 4.707654, lon: -74.053761 }
