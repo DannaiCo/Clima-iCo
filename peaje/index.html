@@ -6,15 +6,20 @@
     <title>Hora, Fecha y Clima</title>
 
     <style>
-      * { box-sizing: border-box; }
-      html, body {
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
         width: 100%;
         height: 100%;
         margin: 0;
         overflow: hidden;
         background: #000;
       }
-      body { font-family: Arial, sans-serif; }
+      body {
+        font-family: Arial, sans-serif;
+      }
 
       #backgroundContainer {
         position: absolute;
@@ -232,8 +237,8 @@
       const currentZone =
         Object.entries(WEATHER_ZONES).find(([key]) => key.toLowerCase() === requestedZone)?.[1] || WEATHER_ZONES.centro;
 
-      const VIDEO_DAY = "CLIMATM_DIA.mp4";
-      const VIDEO_NIGHT = "CLIMATM_NOCHE.mp4";
+      const VIDEO_DAY = "CLIMADIA.mp4";
+      const VIDEO_NIGHT = "CLIMANOCHE.mp4";
       const ICONS = {
         Despejado: ["Iconos/Soleado.svg", "Iconos/Despejado_Noche.svg"],
         Parcialmente_Nublado: ["Iconos/Parcialmente_Nublado.svg", "Iconos/Parcialmente_Nublado_Noche.svg"],
