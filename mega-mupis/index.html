@@ -216,19 +216,27 @@
       const ICONS = {
         Despejado: ["Iconos/Soleado.svg", "Iconos/Despejado_Noche.svg"],
         Parcialmente_Nublado: ["Iconos/Parcialmente_Nublado.svg", "Iconos/Parcialmente_Nublado_Noche.svg"],
+        Mayormente_Nublado: ["Iconos/Nublado.svg", "Iconos/Nublado.svg"],
         Nublado: ["Iconos/Nublado.svg", "Iconos/Nublado.svg"],
+        Neblina: ["Iconos/Vientos_fuertes.svg", "Iconos/Vientos_fuertes.svg"],
         Lluvia_Suave: ["Iconos/Lluvia_Suave.svg", "Iconos/Lluvia_Suave.svg"],
+        Lluvia_Ligera: ["Iconos/Lluvia_Suave.svg", "Iconos/Lluvia_Suave.svg"],
         Lluvia_Fuerte: ["Iconos/Lluvia_Fuerte.svg", "Iconos/Lluvia_Fuerte.svg"],
         Tormenta: ["Iconos/Tormenta.svg", "Iconos/Tormenta.svg"]
       };
+
       const WEATHER_LABELS = {
         Despejado: "Soleado",
-        Parcialmente_Nublado: "Parcialmente nublado",
+        Parcialmente_Nublado: "Parcialmente\nnublado",
+        Mayormente_Nublado: "Mayormente\nnublado",
         Nublado: "Nublado",
+        Neblina: "Neblina",
         Lluvia_Suave: "Llovizna",
+        Lluvia_Ligera: "Lluvia ligera",
         Lluvia_Fuerte: "Lluvia",
         Tormenta: "Tormenta"
       };
+
       let currentWeatherCondition = "Despejado";
       let activeBackground = "A";
       let currentBackgroundSrc = null;
@@ -391,6 +399,15 @@
           const data = await response.json();
           if (!data.weather?.length || !data.main) throw new Error("Respuesta meteorológica incompleta");
           currentWeatherCondition = getWeatherCondition(data.weather[0].id, data.weather[0].description);
+          console.log("CLIMA OPENWEATHER:", {
+            codigo: data.weather[0].id,
+            descripcionOriginal: data.weather[0].description,
+            condicionPantalla: currentWeatherCondition,
+            nubosidad: data.clouds?.all,
+            lluviaUltimaHora: data.rain?.["1h"] ?? 0,
+            temperatura: data.main.temp
+          });
+
           document.getElementById("weather").textContent = `${Math.round(data.main.temp)}°C`;
           document.getElementById("weatherText").textContent = WEATHER_LABELS[currentWeatherCondition];
           document.getElementById("city").textContent = "Medellín";
