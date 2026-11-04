@@ -19,12 +19,12 @@
       }
 
       #backgroundContainer {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 897px;
         height: 192px;
-        z-index: -1;
+        z-index: 0;
         overflow: hidden;
         background: #000;
       }
@@ -58,6 +58,7 @@
         display: grid;
         width: 897px;
         height: 192px;
+        isolation: isolate;
       }
 
       .grid-item {
@@ -70,6 +71,7 @@
         text-align: center;
         line-height: 1;
         font-size: var(--font-max);
+        z-index: 1;
       }
 
       /* HORA */
@@ -116,7 +118,9 @@
         width: max-content;
         max-width: 100%;
         box-sizing: border-box;
-        /* Sin cápsula de fondo: index(2) mostraba solo el texto. */
+        padding: 0;
+        border: 0;
+        background: transparent;
       }
 
       /* TEMPERATURA */
@@ -157,6 +161,7 @@
         height: 110px;
         object-fit: contain;
         pointer-events: none;
+        z-index: 1;
       }
 
       /* CIUDAD */
@@ -178,14 +183,7 @@
     <div class="container">
       <!-- FONDO: alterna solamente entre día y noche -->
       <div id="backgroundContainer">
-        <video
-          id="fondoA"
-          class="weather-background active"
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="auto"></video>
+        <video id="fondoA" class="weather-background active" autoplay muted loop playsinline preload="auto"></video>
 
         <video id="fondoB" class="weather-background" muted loop playsinline preload="auto"></video>
       </div>
@@ -362,9 +360,32 @@
       const GRID_TEXT_SELECTOR = "[data-fit-text]";
 
       function textFitsGridCell(element) {
-        const content = element.firstElementChild || element;
-
-        return content.scrollWidth <= element.clientWidth + 1 && content.scrollHeight <= element.clientHeight + 1;
+        const content = element.firstElementChild;
+        if (content) {
+          return content.scrollWidth <= element.clientWidth + 0.5 && content.scrollHeight <= element.clientHeight + 0.5;
+        }
+        const measure = document.createElement("span");
+        const styles = getComputedStyle(element);
+        measure.textContent = element.textContent;
+        Object.assign(measure.style, {
+          position: "absolute",
+          visibility: "hidden",
+          display: "inline-block",
+          whiteSpace: styles.whiteSpace,
+          fontFamily: styles.fontFamily,
+          fontSize: styles.fontSize,
+          fontWeight: styles.fontWeight,
+          letterSpacing: styles.letterSpacing,
+          lineHeight: styles.lineHeight,
+          width: "max-content",
+          maxWidth: "none"
+        });
+        document.body.appendChild(measure);
+        const fits =
+          measure.getBoundingClientRect().width <= element.clientWidth + 0.5 &&
+          measure.getBoundingClientRect().height <= element.clientHeight + 0.5;
+        measure.remove();
+        return fits;
       }
 
       function fitTextToGridCell(element) {
@@ -382,7 +403,7 @@
           return;
         }
 
-        let lowerSize = minimumSize;
+        let lowerSize = Math.min(minimumSize, maximumSize);
         let upperSize = maximumSize;
 
         for (let attempt = 0; attempt < 12; attempt += 1) {
@@ -408,42 +429,26 @@
          RELOJ, DÍA Y FECHA
       ========================================================= */
 
+      const bogotaClock = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "America/Bogota",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+      });
+      const bogotaDate = new Intl.DateTimeFormat("es-CO", {
+        timeZone: "America/Bogota",
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+      });
       function updateClock() {
         const now = new Date();
-
-        const hours = String(now.getHours()).padStart(2, "0");
-
-        const minutes = String(now.getMinutes()).padStart(2, "0");
-
-        document.getElementById("clock").textContent = `${hours}:${minutes}`;
-
-        const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-
-        const months = [
-          "Enero",
-          "Febrero",
-          "Marzo",
-          "Abril",
-          "Mayo",
-          "Junio",
-          "Julio",
-          "Agosto",
-          "Septiembre",
-          "Octubre",
-          "Noviembre",
-          "Diciembre"
-        ];
-
-        const dayName = days[now.getDay()];
-
-        const day = now.getDate();
-
-        const month = months[now.getMonth()];
-
-        document.getElementById("weekday").textContent = dayName;
-
-        document.getElementById("dateText").textContent = `${day} de ${month}`;
-
+        document.getElementById("clock").textContent = bogotaClock.format(now);
+        const parts = bogotaDate.formatToParts(now);
+        const part = (type) => parts.find((p) => p.type === type)?.value || "";
+        const capitalize = (value) => value.charAt(0).toUpperCase() + value.slice(1);
+        document.getElementById("weekday").textContent = capitalize(part("weekday"));
+        document.getElementById("dateText").textContent = `${part("day")} de ${capitalize(part("month"))}`;
         requestAnimationFrame(fitAllGridText);
       }
 
@@ -451,13 +456,10 @@
          DETERMINAR TIPO DE CLIMA
       ========================================================= */
 
-      function getWeatherCondition(weatherId, description) {
+      function getWeatherCondition(weatherId, description = "") {
         const desc = description.toLowerCase();
 
-        /* Viento: dispone de icono SVG específico en index(2). */
-        if (desc.includes("viento")) {
-          return "Viento";
-        }
+        /* Priorizar los códigos oficiales de OpenWeather. */
 
         /* ---------------------------------------------------------
            TORMENTA
@@ -551,18 +553,19 @@
         const night = isNightTime();
 
         const icons = {
-          Tormenta: "Iconos/Tormenta.svg",
-          Lluvia_Fuerte: "Iconos/Lluvia_Fuerte.svg",
-          Lluvia_Suave: "Iconos/Lluvia_Suave.svg",
-          Nublado: "Iconos/Nublado.svg",
-          Viento: "Iconos/Vientos_fuertes.svg",
-          Parcialmente_Nublado: night
-            ? "Iconos/Parcialmente_Nublado_Noche.svg"
-            : "Iconos/Parcialmente_Nublado.svg",
-          Despejado: night ? "Iconos/Despejado_Noche.svg" : "Iconos/Soleado.svg"
+          Despejado: ["Iconos/Soleado.svg", "Iconos/Despejado_Noche.svg"],
+          Parcialmente_Nublado: ["Iconos/Parcialmente_Nublado.svg", "Iconos/Parcialmente_Nublado_Noche.svg"],
+          Mayormente_Nublado: ["Iconos/Nublado.svg", "Iconos/Nublado.svg"],
+          Nublado: ["Iconos/Nublado.svg", "Iconos/Nublado.svg"],
+          Neblina: ["Iconos/Vientos_fuertes.svg", "Iconos/Vientos_fuertes.svg"],
+          Lluvia_Suave: ["Iconos/Lluvia_Suave.svg", "Iconos/Lluvia_Suave.svg"],
+          Lluvia_Ligera: ["Iconos/Lluvia_Suave.svg", "Iconos/Lluvia_Suave.svg"],
+          Lluvia_Fuerte: ["Iconos/Lluvia_Fuerte.svg", "Iconos/Lluvia_Fuerte.svg"],
+          Tormenta: ["Iconos/Tormenta.svg", "Iconos/Tormenta.svg"]
         };
 
-        return icons[condition] || icons.Despejado;
+        const pair = icons[condition] || icons.Despejado;
+        return pair[night ? 1 : 0];
       }
 
       function updateWeatherIcon() {
@@ -843,13 +846,15 @@
             /* DESCRIPCIÓN */
 
             const WEATHER_LABELS = {
-              Tormenta: "Tormenta",
-              Lluvia_Fuerte: "Lluvia",
-              Lluvia_Suave: "Llovizna",
-              Nublado: "Nublado",
+              Despejado: "Soleado",
               Parcialmente_Nublado: "Parcialmente\nnublado",
-              Viento: "Viento",
-              Despejado: "Soleado"
+              Mayormente_Nublado: "Mayormente\nnublado",
+              Nublado: "Nublado",
+              Neblina: "Neblina",
+              Lluvia_Suave: "Llovizna",
+              Lluvia_Ligera: "Lluvia ligera",
+              Lluvia_Fuerte: "Lluvia",
+              Tormenta: "Tormenta"
             };
 
             document.getElementById("weatherText").textContent = WEATHER_LABELS[currentWeatherCondition] || "Soleado";
@@ -863,6 +868,17 @@
             updateWeatherVisuals();
 
             requestAnimationFrame(fitAllGridText);
+
+            currentWeatherCondition = getWeatherCondition(data.weather[0].id, data.weather[0].description);
+
+            console.log("CLIMA OPENWEATHER:", {
+              codigo: data.weather[0].id,
+              descripcionOriginal: data.weather[0].description,
+              condicionPantalla: currentWeatherCondition,
+              nubosidad: data.clouds?.all,
+              lluviaUltimaHora: data.rain?.["1h"] ?? 0,
+              temperatura: data.main.temp
+            });
 
             console.log(`Clima actualizado - Bogotá ${currentZone.name}`, {
               temperatura: temperature,
