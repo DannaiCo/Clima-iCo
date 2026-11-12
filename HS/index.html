@@ -208,19 +208,16 @@
     </div>
 
     <script>
-      // MODO LLENAR: conserva el diseno base de 1368 x 1440 px.
-      // Amplia uniformemente el lienzo hasta cubrir la pantalla completa.
-      // Si la proporcion de la pantalla cambia, el excedente queda recortado.
+      // AJUSTAR A PANTALLA: mantiene el lienzo interno de 1368 x 1440 px.
+      // Usa escalas independientes para cubrir el viewport sin recortar.
+      // Al cambiar la proporcion del viewport, el contenido puede estirarse.
       const DESIGN_WIDTH = 1368;
       const DESIGN_HEIGHT = 1440;
       function applyFillMode() {
-        const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
-        const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
-        const scale = Math.max(viewportWidth / DESIGN_WIDTH, viewportHeight / DESIGN_HEIGHT);
-        const offsetX = (viewportWidth - DESIGN_WIDTH * scale) / 2;
-        const offsetY = (viewportHeight - DESIGN_HEIGHT * scale) / 2;
-        const canvas = document.querySelector('.container');
-        canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+        const scaleX = window.innerWidth / DESIGN_WIDTH;
+        const scaleY = window.innerHeight / DESIGN_HEIGHT;
+        const canvas = document.querySelector(".container");
+        canvas.style.transform = `scale(${scaleX}, ${scaleY})`;
       }
       applyFillMode();
 
