@@ -8,18 +8,16 @@
     <style>
       body {
         margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 1944px;
-        height: 432px;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
         background: #000;
         font-family: Arial, sans-serif;
         font-weight: bold;
       }
 
       #backgroundContainer {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 1944px;
@@ -55,10 +53,14 @@
       }
 
       .container {
-        position: relative;
+        position: absolute;
+        left: 50%;
+        top: 50%;
         display: grid;
         width: 1944px;
         height: 432px;
+        transform-origin: center center;
+        transform: translate(-50%, -50%) scale(var(--fill-scale, 1));
       }
 
       .grid-item {
@@ -202,6 +204,18 @@
     </div>
 
     <script>
+      // MODO LLENAR: lienzo original 1944 x 432, sin modificar sus coordenadas.
+      // Escala uniforme tipo cover, centrada; recorta solo el excedente si
+      // la proporción del viewport es diferente a la del lienzo original.
+      function applyFillMode() {
+        const screenWidth = document.documentElement.clientWidth || window.innerWidth;
+        const screenHeight = document.documentElement.clientHeight || window.innerHeight;
+        const scale = Math.max(screenWidth / 1944, screenHeight / 432);
+        document.querySelector('.container').style.setProperty('--fill-scale', String(scale));
+      }
+      applyFillMode();
+      window.addEventListener('resize', applyFillMode);
+
       const WEATHER_ZONES = {
         MegaMupi: { name: "mega-mupi", lat: 6.196539, lon: -75.559001 },
         centro: { name: "Centro", lat: 6.196539, lon: -75.559001 }
