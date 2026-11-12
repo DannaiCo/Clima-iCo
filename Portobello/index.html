@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hora, Fecha y Clima</title>
+
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 2120px;
+        height: 576px;
+        background: #000;
+        font-family: Arial, sans-serif;
+      }
+
+      #backgroundContainer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 2120px;
+        height: 576px;
+        z-index: -1;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .weather-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 2120px;
+        height: 576px;
+
+        object-fit: cover;
+
+        opacity: 0;
+
+        /*
+    Transición muy corta para evitar
+    cualquier frame intermedio.
+  */
+        transition: opacity 0.15s linear;
+
+        pointer-events: none;
+      }
+
+      .weather-background.active {
+        opacity: 1;
+      }
+
+      .container {
+        position: relative;
+        display: grid;
+        width: 2120px;
+        height: 576px;
+      }
+
+      .grid-item {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        box-sizing: border-box;
+        overflow: hidden;
+        white-space: nowrap;
+        text-align: center;
+        line-height: 1;
+        font-size: var(--font-max);
+      }
+
+      /* HORA */
+      .time {
+        left: 92px;
+        top: 56px;
+        width: 666px;
+        height: 200px;
+        --font-max: 300px;
+        --font-min: 30px;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+        letter-spacing: 5px;
+        font-style: normal;
+        color: #ffffff;
+      }
+
+      /* DÍA DE LA SEMANA */
+      .day {
+        left: 92px;
+        top: 275px;
+        width: 631px;
+        height: 120px;
+        --font-max: 130px;
+        --font-min: 30px;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+        font-style: normal;
+        color: #04308c;
+      }
+
+      /* FECHA */
+      .date {
+        left: 110px;
+        top: 389px;
+        width: 631px;
+        height: 136px;
+        --font-max: 127px;
+        --font-min: 16px;
+        font-family: Arial, sans-serif;
+        font-weight: 800;
+        font-style: normal;
+        letter-spacing: 1.2px;
+        color: #04308c;
+      }
+
+      .date-pill {
+        display: block;
+        width: max-content;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+      }
+
+      /* TEMPERATURA */
+      .weather {
+        left: 1226px;
+        top: 213px;
+        width: 429px;
+        height: 239px;
+        --font-max: 272px;
+        --font-min: 100px;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+        font-style: normal;
+        letter-spacing: 1px;
+        color: #0857d3;
+      }
+
+      /* DESCRIPCIÓN */
+      .weather-description {
+        left: 1226px;
+        top: 433px;
+        width: 665px;
+        height: 69px;
+        --font-max: 81px;
+        --font-min: 35px;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+        font-style: normal;
+        color: #04308c;
+        white-space: pre-line;
+        line-height: 0.84;
+        text-align: center;
+      }
+
+      /* CIUDAD */
+      .city {
+        left: 1226px;
+        top: 86px;
+        width: 736px;
+        height: 119px;
+        --font-max: 100px;
+        --font-min: 12px;
+        font-family: Arial, sans-serif;
+        font-weight: 700;
+        font-style: normal;
+        color: #04308c;
+      }
+
+      .weather-icon-big {
+        position: absolute;
+        left: 1695px;
+        top: 227px;
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        pointer-events: none;
+        z-index: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- FONDO DINÁMICO -->
+      <div id="backgroundContainer">
+        <video id="fondoA" class="weather-background" autoplay muted loop playsinline preload="auto"></video>
+
+        <video id="fondoB" class="weather-background" muted loop playsinline preload="auto"></video>
+      </div>
+
+      <div id="clock" class="time grid-item" data-fit-text></div>
+      <div id="weekday" class="day grid-item" data-fit-text></div>
+      <div id="date" class="date grid-item" data-fit-text>
+        <span id="dateText" class="date-pill"></span>
+      </div>
+      <div id="city" class="city grid-item" data-fit-text>Bogotá</div>
+      <div id="weather" class="weather grid-item" data-fit-text></div>
+      <div id="weatherText" class="weather-description grid-item" data-fit-text></div>
+      <img id="weatherIconBig" class="weather-icon-big" src="Iconos/Soleado.svg" alt="Estado del clima" />
+    </div>
+
+    <script>
+      const WEATHER_ZONES = {
+        Valla106: { name: "Valla106", lat: 4.688387, lon: -74.041831 },
+        centro: { name: "Centro", lat: 4.688387, lon: -74.041831 }
+      };
+      const params = new URLSearchParams(window.location.search);
+      const requestedZone = (params.get("zona") || "centro").toLowerCase();
+      const currentZone =
+        Object.entries(WEATHER_ZONES).find(([key]) => key.toLowerCase() === requestedZone)?.[1] || WEATHER_ZONES.centro;
+
+      const VIDEO_DAY = "CLIMADIA.mp4";
+      const VIDEO_NIGHT = "CLIMANOCHE.mp4";
+      const ICONS = {
+        Despejado: ["Iconos/Soleado.svg", "Iconos/Despejado_Noche.svg"],
+        Parcialmente_Nublado: ["Iconos/Parcialmente_Nublado.svg", "Iconos/Parcialmente_Nublado_Noche.svg"],
+        Mayormente_Nublado: ["Iconos/Nublado.svg", "Iconos/Nublado.svg"],
+        Nublado: ["Iconos/Nublado.svg", "Iconos/Nublado.svg"],
+        Neblina: ["Iconos/Vientos_fuertes.svg", "Iconos/Vientos_fuertes.svg"],
+        Lluvia_Suave: ["Iconos/Lluvia_Suave.svg", "Iconos/Lluvia_Suave.svg"],
+        Lluvia_Ligera: ["Iconos/Lluvia_Suave.svg", "Iconos/Lluvia_Suave.svg"],
+        Lluvia_Fuerte: ["Iconos/Lluvia_Fuerte.svg", "Iconos/Lluvia_Fuerte.svg"],
+        Tormenta: ["Iconos/Tormenta.svg", "Iconos/Tormenta.svg"]
+      };
+      const WEATHER_LABELS = {
+        Despejado: "Soleado",
+        Parcialmente_Nublado: "Parcialmente Nublado",
+        Mayormente_Nublado: "Mayormente Nublado",
+        Nublado: "Nublado",
+        Neblina: "Neblina",
+        Lluvia_Suave: "Llovizna",
+        Lluvia_Ligera: "Lluvia ligera",
+        Lluvia_Fuerte: "Lluvia",
+        Tormenta: "Tormenta"
+      };
+
+      let currentWeatherCondition = "Despejado";
+      let activeBackground = "A";
+      let currentBackgroundSrc = null;
+      let backgroundChanging = false;
+      const clockFormatter = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "America/Bogota",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+      });
+      const dateFormatter = new Intl.DateTimeFormat("es-CO", {
+        timeZone: "America/Bogota",
+        weekday: "long",
+        day: "numeric",
+        month: "short"
+      });
+      const hourFormatter = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "America/Bogota",
+        hour: "2-digit",
+        hourCycle: "h23"
+      });
+      function isNightTime() {
+        const hour = Number(hourFormatter.format(new Date()));
+        return hour >= 18 || hour < 6;
+      }
+      function getWeatherCondition(id, description = "") {
+        if (id >= 200 && id < 300) return "Tormenta";
+        if (id >= 300 && id < 400) return "Lluvia_Suave";
+        if (id >= 500 && id < 600) {
+          return [502, 503, 504, 511, 522, 531].includes(id) ? "Lluvia_Fuerte" : "Lluvia_Suave";
+        }
+        if (id === 800) return "Despejado";
+        if ([801, 802, 803].includes(id)) return "Parcialmente_Nublado";
+        if (id === 804) return "Nublado";
+        return "Despejado";
+      }
+      function updateWeatherIcon() {
+        const icon = document.getElementById("weatherIconBig");
+        const next = ICONS[currentWeatherCondition][isNightTime() ? 1 : 0];
+        if (icon.getAttribute("src") !== next) icon.setAttribute("src", next);
+      }
+      function contentFits(element) {
+        const child = element.firstElementChild;
+        if (child)
+          return child.scrollWidth <= element.clientWidth + 0.5 && child.scrollHeight <= element.clientHeight + 0.5;
+        // The grid element clips overflow, so measure text using a temporary
+        // intrinsic-width element instead of its own scrollWidth.
+        const measure = document.createElement("span");
+        const styles = getComputedStyle(element);
+        measure.textContent = element.textContent;
+        Object.assign(measure.style, {
+          position: "absolute",
+          visibility: "hidden",
+          display: "inline-block",
+          whiteSpace: styles.whiteSpace,
+          font: styles.font,
+          fontFamily: styles.fontFamily,
+          fontSize: styles.fontSize,
+          fontWeight: styles.fontWeight,
+          letterSpacing: styles.letterSpacing,
+          lineHeight: styles.lineHeight,
+          textAlign: styles.textAlign,
+          width: "max-content",
+          maxWidth: "none"
+        });
+        document.body.appendChild(measure);
+        const ok =
+          measure.getBoundingClientRect().width <= element.clientWidth + 0.5 &&
+          measure.getBoundingClientRect().height <= element.clientHeight + 0.5;
+        measure.remove();
+        return ok;
+      }
+      function fitTextToGridCell(element) {
+        const styles = getComputedStyle(element);
+        const maximum = Number.parseFloat(styles.getPropertyValue("--font-max"));
+        if (!maximum || !element.clientWidth || !element.clientHeight) return;
+        let lo = 1,
+          hi = maximum;
+        element.style.fontSize = `${hi}px`;
+        if (contentFits(element)) return;
+        for (let i = 0; i < 15; i++) {
+          const mid = (lo + hi) / 2;
+          element.style.fontSize = `${mid}px`;
+          if (contentFits(element)) lo = mid;
+          else hi = mid;
+        }
+        element.style.fontSize = `${Math.max(1, Math.floor(lo * 10) / 10)}px`;
+      }
+      function fitAllGridText() {
+        document.querySelectorAll("[data-fit-text]").forEach(fitTextToGridCell);
+      }
+      function updateClock() {
+        const now = new Date();
+        document.getElementById("clock").textContent = clockFormatter.format(now);
+        const parts = dateFormatter.formatToParts(now);
+        const part = (type) => parts.find((p) => p.type === type)?.value || "";
+        const capitalize = (value) => value.charAt(0).toUpperCase() + value.slice(1);
+        document.getElementById("weekday").textContent = capitalize(part("weekday"));
+        document.getElementById("dateText").textContent = `${part("day")} de ${capitalize(part("month"))}`;
+        requestAnimationFrame(fitAllGridText);
+      }
+      function waitForVideo(video) {
+        if (video.readyState >= 2) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+          const done = () => {
+            cleanup();
+            resolve();
+          };
+          const fail = () => {
+            cleanup();
+            reject(new Error("No se pudo cargar: " + video.src));
+          };
+          const cleanup = () => {
+            video.removeEventListener("loadeddata", done);
+            video.removeEventListener("error", fail);
+          };
+          video.addEventListener("loadeddata", done, { once: true });
+          video.addEventListener("error", fail, { once: true });
+        });
+      }
+      async function updateWeatherBackground() {
+        const newSrc = isNightTime() ? VIDEO_NIGHT : VIDEO_DAY;
+        if (backgroundChanging || newSrc === currentBackgroundSrc) return;
+        backgroundChanging = true;
+        const oldVideo = document.getElementById(activeBackground === "A" ? "fondoA" : "fondoB");
+        const newVideo = document.getElementById(activeBackground === "A" ? "fondoB" : "fondoA");
+        try {
+          newVideo.classList.remove("active");
+          if (newVideo.getAttribute("src") !== newSrc) {
+            newVideo.src = newSrc;
+            newVideo.load();
+          }
+          await waitForVideo(newVideo);
+          await newVideo.play();
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          newVideo.classList.add("active");
+          oldVideo.classList.remove("active");
+          activeBackground = activeBackground === "A" ? "B" : "A";
+          currentBackgroundSrc = newSrc;
+          setTimeout(() => {
+            if (!oldVideo.classList.contains("active")) oldVideo.pause();
+          }, 250);
+        } catch (error) {
+          console.error("Error al cambiar el fondo:", error);
+        } finally {
+          backgroundChanging = false;
+        }
+      }
+      function checkDayNightChange() {
+        updateWeatherBackground();
+        updateWeatherIcon();
+      }
+      async function fetchWeather() {
+        const apiKey = "65fd2c24a1679d15f7b59502783522f7";
+        const { lat, lon } = currentZone;
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`OpenWeather: ${response.status}`);
+          const data = await response.json();
+          if (!data.weather?.length || !data.main) throw new Error("Respuesta meteorológica incompleta");
+          currentWeatherCondition = getWeatherCondition(data.weather[0].id, data.weather[0].description);
+          console.log("CLIMA OPENWEATHER:", {
+            codigo: data.weather[0].id,
+            descripcionOriginal: data.weather[0].description,
+            condicionPantalla: currentWeatherCondition,
+            nubosidad: data.clouds?.all,
+            lluviaUltimaHora: data.rain?.["1h"] ?? 0,
+            temperatura: data.main.temp
+          });
+
+          document.getElementById("weather").textContent = `${Math.round(data.main.temp)}°C`;
+          document.getElementById("weatherText").textContent = WEATHER_LABELS[currentWeatherCondition];
+          document.getElementById("city").textContent = "Bogotá";
+          updateWeatherIcon();
+          requestAnimationFrame(fitAllGridText);
+        } catch (error) {
+          console.error("Error obteniendo el clima:", error);
+          document.getElementById("weather").textContent = "--";
+          document.getElementById("weatherText").textContent = "";
+          requestAnimationFrame(fitAllGridText);
+        }
+      }
+      updateClock();
+      updateWeatherIcon();
+      updateWeatherBackground();
+      fetchWeather();
+      setInterval(updateClock, 1000);
+      setInterval(fetchWeather, 10 * 60 * 1000);
+      setInterval(checkDayNightChange, 60 * 1000);
+      window.addEventListener("resize", fitAllGridText);
+      if (document.fonts?.ready) document.fonts.ready.then(fitAllGridText);
+    </script>
+  </body>
+</html>

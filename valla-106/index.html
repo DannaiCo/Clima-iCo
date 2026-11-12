@@ -89,10 +89,10 @@
 
       /* DÍA DE LA SEMANA */
       .day {
-        left: 45px;
-        top: 248px;
-        width: 551px;
-        height: 78px;
+        left: 74px;
+        top: 236px;
+        width: 483px;
+        height: 94px;
         --font-max: 130px;
         --font-min: 30px;
         font-family: Arial, sans-serif;
@@ -103,9 +103,9 @@
 
       /* FECHA */
       .date {
-        left: 45px;
+        left: 85px;
         top: 325px;
-        width: 483px;
+        width: 452px;
         height: 101px;
         --font-max: 77px;
         --font-min: 16px;
@@ -131,9 +131,9 @@
       /* TEMPERATURA */
       .weather {
         left: 691px;
-        top: 141px;
-        width: 345px;
-        height: 221px;
+        top: 173px;
+        width: 359px;
+        height: 174px;
         --font-max: 272px;
         --font-min: 100px;
         font-family: Arial, sans-serif;
@@ -145,10 +145,10 @@
 
       /* DESCRIPCIÓN */
       .weather-description {
-        left: 680px;
-        top: 303px;
-        width: 377px;
-        height: 98px;
+        left: 704px;
+        top: 329px;
+        width: 557px;
+        height: 75px;
         --font-max: 81px;
         --font-min: 35px;
         font-family: Arial, sans-serif;
@@ -176,10 +176,10 @@
 
       .weather-icon-big {
         position: absolute;
-        left: 1068px;
-        top: 186px;
-        width: 200px;
-        height: 200px;
+        left: 1077px;
+        top: 176px;
+        width: 186px;
+        height: 156px;
         object-fit: contain;
         pointer-events: none;
         z-index: 1;
@@ -232,8 +232,8 @@
       };
       const WEATHER_LABELS = {
         Despejado: "Soleado",
-        Parcialmente_Nublado: "Parcialmente\nnublado",
-        Mayormente_Nublado: "Mayormente\nnublado",
+        Parcialmente_Nublado: "Parcialmente Nublado",
+        Mayormente_Nublado: "Mayormente Nublado",
         Nublado: "Nublado",
         Neblina: "Neblina",
         Lluvia_Suave: "Llovizna",
@@ -256,7 +256,7 @@
         timeZone: "America/Bogota",
         weekday: "long",
         day: "numeric",
-        month: "long"
+        month: "short"
       });
       const hourFormatter = new Intl.DateTimeFormat("en-GB", {
         timeZone: "America/Bogota",

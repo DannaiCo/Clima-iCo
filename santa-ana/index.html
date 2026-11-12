@@ -103,11 +103,11 @@
 
       /* FECHA */
       .date {
-        left: 89px;
-        top: 937px;
-        width: 1580px;
+        left: 158px;
+        top: 996px;
+        width: 1436px;
         height: 418px;
-        --font-max: 214px;
+        --font-max: 300px;
         --font-min: 16px;
         font-family: Arial, sans-serif;
         font-weight: 700;
@@ -142,9 +142,9 @@
 
       /* DESCRIPCIÓN */
       .weather-description {
-        left: 1776px;
-        top: 1326px;
-        width: 1800px;
+        left: 1821px;
+        top: 1352px;
+        width: 1700px;
         height: 270px;
         --font-max: 200px;
         --font-min: 35px;
@@ -229,8 +229,8 @@
 
       const WEATHER_LABELS = {
         Despejado: "Soleado",
-        Parcialmente_Nublado: "Parcialmente\nnublado",
-        Mayormente_Nublado: "Mayormente\nnublado",
+        Parcialmente_Nublado: "Parcialmente Nublado",
+        Mayormente_Nublado: "Mayormente Nublado",
         Nublado: "Nublado",
         Neblina: "Neblina",
         Lluvia_Suave: "Llovizna",
@@ -253,7 +253,7 @@
         timeZone: "America/Bogota",
         weekday: "long",
         day: "numeric",
-        month: "long"
+        month: "short"
       });
       const hourFormatter = new Intl.DateTimeFormat("en-GB", {
         timeZone: "America/Bogota",
