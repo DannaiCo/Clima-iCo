@@ -6,24 +6,27 @@
     <title>Hora, Fecha y Clima</title>
 
     <style>
-      body {
+      html, body {
         margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 3840px;
-        height: 542px;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      body {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
         background: #000;
         font-family: Arial, sans-serif;
       }
 
       #backgroundContainer {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 3840px;
         height: 542px;
-        z-index: -1;
+        z-index: 0;
         overflow: hidden;
         background: #000;
       }
@@ -54,13 +57,18 @@
       }
 
       .container {
-        position: relative;
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform-origin: 0 0;
+        isolation: isolate;
         display: grid;
         width: 3840px;
         height: 542px;
       }
 
       .grid-item {
+        z-index: 1;
         position: absolute;
         display: grid;
         place-items: center;
@@ -181,7 +189,7 @@
         height: 200px;
         object-fit: contain;
         pointer-events: none;
-        z-index: 1;
+        z-index: 2;
       }
     </style>
   </head>
@@ -424,7 +432,23 @@
           requestAnimationFrame(fitAllGridText);
         }
       }
-      updateClock();
+             // MODO LLENAR: mantiene el lienzo original de 3840 x 542 px.
+       // Cubre el viewport sin deformar: recorta los bordes si cambia la proporcion.
+       function aplicarModoLlenar() {
+         const anchoDiseno = 3840;
+         const altoDiseno = 542;
+         const anchoPantalla = window.innerWidth || document.documentElement.clientWidth;
+         const altoPantalla = window.innerHeight || document.documentElement.clientHeight;
+         const escala = Math.max(anchoPantalla / anchoDiseno, altoPantalla / altoDiseno);
+         const desplazamientoX = (anchoPantalla - anchoDiseno * escala) / 2;
+         const desplazamientoY = (altoPantalla - altoDiseno * escala) / 2;
+         document.querySelector('.container').style.transform =
+           `translate(${desplazamientoX}px, ${desplazamientoY}px) scale(${escala})`;
+       }
+       aplicarModoLlenar();
+       window.addEventListener('resize', aplicarModoLlenar);
+
+updateClock();
       updateWeatherIcon();
       updateWeatherBackground();
       fetchWeather();
