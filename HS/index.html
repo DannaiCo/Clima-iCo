@@ -8,17 +8,15 @@
     <style>
       body {
         margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 1368px;
-        height: 1440px;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
         background: #000;
         font-family: Arial, sans-serif;
       }
 
       #backgroundContainer {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 1368px;
@@ -54,10 +52,13 @@
       }
 
       .container {
-        position: relative;
+        position: absolute;
+        left: 0;
+        top: 0;
         display: grid;
         width: 1368px;
         height: 1440px;
+        transform-origin: top left;
       }
 
       .grid-item {
@@ -207,6 +208,22 @@
     </div>
 
     <script>
+      // MODO LLENAR: conserva el diseno base de 1368 x 1440 px.
+      // Amplia uniformemente el lienzo hasta cubrir la pantalla completa.
+      // Si la proporcion de la pantalla cambia, el excedente queda recortado.
+      const DESIGN_WIDTH = 1368;
+      const DESIGN_HEIGHT = 1440;
+      function applyFillMode() {
+        const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+        const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
+        const scale = Math.max(viewportWidth / DESIGN_WIDTH, viewportHeight / DESIGN_HEIGHT);
+        const offsetX = (viewportWidth - DESIGN_WIDTH * scale) / 2;
+        const offsetY = (viewportHeight - DESIGN_HEIGHT * scale) / 2;
+        const canvas = document.querySelector('.container');
+        canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      }
+      applyFillMode();
+
       const WEATHER_ZONES = {
         VallaAvBoyaca: { name: "VallaAvBoyaca", lat: 4.725701, lon: -74.071661 },
         centro: { name: "Centro", lat: 4.725701, lon: -74.071661 }
@@ -449,7 +466,10 @@
       setInterval(updateClock, 1000);
       setInterval(fetchWeather, 10 * 60 * 1000);
       setInterval(checkDayNightChange, 60 * 1000);
-      window.addEventListener("resize", fitAllGridText);
+      window.addEventListener("resize", () => {
+        applyFillMode();
+        fitAllGridText();
+      });
       if (document.fonts?.ready) document.fonts.ready.then(fitAllGridText);
     </script>
   </body>
