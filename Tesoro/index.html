@@ -2,7 +2,9 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
     <title>Hora, Fecha y Clima</title>
 
     <style>
@@ -211,10 +213,10 @@
         const screenWidth = document.documentElement.clientWidth || window.innerWidth;
         const screenHeight = document.documentElement.clientHeight || window.innerHeight;
         const scale = Math.max(screenWidth / 1944, screenHeight / 432);
-        document.querySelector('.container').style.setProperty('--fill-scale', String(scale));
+        document.querySelector(".container").style.setProperty("--fill-scale", String(scale));
       }
       applyFillMode();
-      window.addEventListener('resize', applyFillMode);
+      window.addEventListener("resize", applyFillMode);
 
       const WEATHER_ZONES = {
         MegaMupi: { name: "mega-mupi", lat: 6.196539, lon: -75.559001 },
